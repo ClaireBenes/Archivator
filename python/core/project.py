@@ -17,5 +17,4 @@ class Project:
         pass
 
     def is_path_inside(self, filepath: str) -> bool:
-        """Check if a file belongs to this project."""
         pass

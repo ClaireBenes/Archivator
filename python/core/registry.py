@@ -11,11 +11,9 @@ class ProjectRegistry:
     """
 
     def load(self):
-        """Load projects from JSON."""
         pass
 
     def save(self):
-        """Persist projects to disk."""
         pass
 
     def add_project(self, project: Project):
