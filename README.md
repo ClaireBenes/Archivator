@@ -225,3 +225,6 @@ Archivator is designed as a modular, maintainable system where:
 - External tools remain lightweight and decoupled
 
 This architecture ensures scalability, flexibility, and ease of integration in production pipelines.
+
+# 🧩 Architecture Diagram
+<img width="501" height="521" alt="Archivator" src="https://github.com/user-attachments/assets/c2c652d1-133e-4c7a-857a-2351737719be" />
