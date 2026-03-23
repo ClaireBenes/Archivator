@@ -151,7 +151,7 @@ Manages automated background tasks.
 
 ---
 
-# 🖥️ UI LAYER (Optional)
+# 🖥️ UI LAYER
 
 ## `ui/app.py`
 
