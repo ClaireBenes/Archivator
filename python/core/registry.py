@@ -85,6 +85,8 @@ class ProjectRegistry:
             InvalidProjectError: If a project with the same root or trash_dir already exists.
         """
 
+        #TODO: Create the trash folder if it doesn't exist or raise an exception
+
         for existing in self.projects:
             if existing.root == project.root:
                 raise InvalidProjectError(f"Project with root '{project.root}' already exists.")
