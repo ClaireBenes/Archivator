@@ -1,5 +1,6 @@
 from core.project import Project
 from core.registry import ProjectRegistry
+from core.exceptions import ProjectNotFoundError
 
 class ProjectResolver:
     """
@@ -11,13 +12,37 @@ class ProjectResolver:
     """
 
     def __init__(self, registry: ProjectRegistry):
-        pass
+        """
+        Initialize the resolver.
+
+        Args:
+            registry (ProjectRegistry): Registry containing all projects.
+        """
+        self.registry = registry
 
     def resolve(self, filepath: str) -> Project:
         """
-        Find project by matching root path.
+        Find the project that owns the given file path.
+
+        The method checks each registered project and determines
+        if the file path is inside the project's root directory.
+
+        Args:
+            filepath (str): Path to the file.
+
+        Returns:
+            Project: The project that contains the file.
 
         Raises:
-            ProjectNotFoundError
+            ProjectNotFoundError: If no project matches the given path.
         """
-        pass
+
+        # Loop through all registered projects
+        for project in self.registry.get_all():
+
+            # Use project's helper method to check ownership
+            if project.is_path_inside(filepath):
+                return project
+
+        # If no project matches, raise an error
+        raise ProjectNotFoundError(filepath)
