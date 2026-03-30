@@ -7,6 +7,22 @@
             "trash_dir": "C:\\Users\\claire.benes\\Documents\\PythonProject\\StoragePrismPlugin\\OKO\\01_Trash",
             "collect": {},
             "paths": []
+        },
+        {
+            "id": "e1a6b6c0-5c9d-4bce-8b44-9bbfb8cf319a",
+            "name": "TEST_Archi",
+            "root": "C:\\Users\\claire.benes\\Documents\\PythonProject\\StoragePrismPlugin\\TEST_Archi",
+            "trash_dir": "C:\\Users\\claire.benes\\Documents\\PythonProject\\StoragePrismPlugin\\TEST_Archi\\trahs",
+            "collect": {},
+            "paths": []
+        },
+        {
+            "id": "0a972f24-1a79-4bfd-8298-813ba8afb59c",
+            "name": "Erialcs",
+            "root": "C:\\Users\\claire.benes\\Documents\\PythonProject\\StoragePrismPlugin\\Erialcs",
+            "trash_dir": "C:\\Users\\claire.benes\\Documents\\PythonProject\\StoragePrismPlugin\\Erialcs\\01_Trash",
+            "collect": {},
+            "paths": []
         }
     ]
 }

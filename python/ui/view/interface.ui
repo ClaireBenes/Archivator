@@ -6,78 +6,247 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>820</width>
-    <height>507</height>
+    <width>900</width>
+    <height>629</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Archivator</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>80</y>
-      <width>241</width>
-      <height>161</height>
-     </rect>
+   <layout class="QVBoxLayout" name="mainVerticalLayout">
+    <property name="spacing">
+     <number>18</number>
     </property>
-    <property name="text">
-     <string>ProjectExemple</string>
+    <property name="leftMargin">
+     <number>24</number>
     </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>10</y>
-      <width>141</width>
-      <height>41</height>
-     </rect>
+    <property name="topMargin">
+     <number>24</number>
     </property>
-    <property name="font">
-     <font>
-      <pointsize>17</pointsize>
-     </font>
+    <property name="rightMargin">
+     <number>24</number>
     </property>
-    <property name="text">
-     <string>ARCHIVATOR</string>
+    <property name="bottomMargin">
+     <number>24</number>
     </property>
-   </widget>
-   <widget class="Line" name="line">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>781</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Orientation::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_2">
-    <property name="geometry">
-     <rect>
-      <x>280</x>
-      <y>80</y>
-      <width>241</width>
-      <height>161</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>+</string>
-    </property>
-   </widget>
+    <item>
+     <widget class="QFrame" name="headerFrame">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Shape::NoFrame</enum>
+      </property>
+      <layout class="QVBoxLayout" name="headerLayout">
+       <property name="spacing">
+        <number>10</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="titleLabel">
+         <property name="font">
+          <font>
+           <family>Segoe UI</family>
+           <pointsize>28</pointsize>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>ARCHIVATOR</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="subtitleLabel">
+         <property name="font">
+          <font>
+           <family>Segoe UI</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Archive and manage VFX project storage</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="toolbarFrame">
+         <property name="frameShape">
+          <enum>QFrame::Shape::NoFrame</enum>
+         </property>
+         <layout class="QHBoxLayout" name="toolbarLayout">
+          <property name="spacing">
+           <number>10</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="settingsButton">
+            <property name="minimumSize">
+             <size>
+              <width>110</width>
+              <height>36</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Settings</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="sortComboBox">
+            <property name="minimumSize">
+             <size>
+              <width>170</width>
+              <height>36</height>
+             </size>
+            </property>
+            <item>
+             <property name="text">
+              <string>Sort: Name</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Sort: Recent</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Sort: Path</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <spacer name="toolbarSpacer">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="searchLineEdit">
+            <property name="minimumSize">
+             <size>
+              <width>300</width>
+              <height>36</height>
+             </size>
+            </property>
+            <property name="placeholderText">
+             <string>Search projects...</string>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="Line" name="line">
+      <property name="lineWidth">
+       <number>5</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Orientation::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QFrame" name="contentFrame">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>300</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Shape::NoFrame</enum>
+      </property>
+      <layout class="QVBoxLayout" name="contentLayout">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>10</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="statsLabel">
+         <property name="font">
+          <font>
+           <family>Segoe UI</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>0 projects registered</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>10</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QWidget" name="projectContainer" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>300</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>820</width>
+     <width>900</width>
      <height>33</height>
     </rect>
    </property>
