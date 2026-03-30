@@ -116,7 +116,7 @@ class ProjectCard(QFrame):
         if action == open_action:
             self.app.open_project(self.project)
         elif action == empty_action:
-            self.app.empty_project_trash(self.project.id)
+            self.app.empty_project_trash(self.project)
         elif action == settings_action:
             self.app.open_project_settings(self.project)
         elif action == remove_action:

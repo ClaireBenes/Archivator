@@ -314,15 +314,15 @@ class ArchivatorApp:
         action = menu.exec(button.mapToGlobal(button.rect().bottomLeft()))
 
         if action == empty_action:
-            self.empty_project_trash(project.id)
+            self.empty_project_trash(project)
         elif action == settings_action:
             self.open_project_settings(project)
 
-    def empty_project_trash(self, project_id):
+    def empty_project_trash(self, project):
         reply = QMessageBox.question(
             self.window,
             "Confirm",
-            f"Empty trash for project:\n{project_id} ?",
+            f"Empty trash for \n{project.name} ?",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -331,7 +331,7 @@ class ArchivatorApp:
             return
 
         try:
-            self.service.empty_project_trash(project_id)
+            self.service.empty_project_trash(project.id)
             QMessageBox.information(self.window, "Done", "Trash emptied.")
         except ArchivatorError as e:
             QMessageBox.warning(self.window, "Archivator Error", str(e))
