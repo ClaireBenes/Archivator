@@ -1,15 +1,6 @@
 import os
 
-from PySide6.QtWidgets import (
-    QDialog,
-    QDialogButtonBox,
-    QFileDialog,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QVBoxLayout,
-    QMessageBox,
-)
+from PySide6.QtWidgets import *
 
 
 class AddProjectDialog(QDialog):
@@ -27,7 +18,7 @@ class AddProjectDialog(QDialog):
         super().__init__(parent)
 
         self.setWindowTitle("Add Project")
-        self.setMinimumWidth(500)
+        self.setMinimumWidth(550)
 
         self.root_edit = QLineEdit()
         self.root_edit.setPlaceholderText("Project root path")
@@ -35,25 +26,40 @@ class AddProjectDialog(QDialog):
         self.trash_edit = QLineEdit()
         self.trash_edit.setPlaceholderText("Trash path")
 
-        self.root_button = QPushButton("Browse Root")
-        self.trash_button = QPushButton("Browse Trash")
+        self.root_button = QPushButton("Browse")
+        self.trash_button = QPushButton("Browse")
+
+        self.root_button.setFixedWidth(90)
+        self.trash_button.setFixedWidth(90)
 
         self.root_button.clicked.connect(self.browse_root)
         self.trash_button.clicked.connect(self.browse_trash)
+
+        # Layout
+        layout = QVBoxLayout(self)
+
+        # Root row
+        layout.addWidget(QLabel("Project Root"))
+        root_row = QHBoxLayout()
+        root_row.addWidget(self.root_edit)
+        root_row.addWidget(self.root_button)
+        layout.addLayout(root_row)
+
+        layout.addSpacing(10)
+
+        # Trash row
+        layout.addWidget(QLabel("Trash Folder"))
+        trash_row = QHBoxLayout()
+        trash_row.addWidget(self.trash_edit)
+        trash_row.addWidget(self.trash_button)
+        layout.addLayout(trash_row)
+
+        layout.addSpacing(12)
 
         self.buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.buttons.accepted.connect(self.accept)
         self.buttons.rejected.connect(self.reject)
 
-        layout = QVBoxLayout(self)
-        layout.addWidget(QLabel("Project Root"))
-        layout.addWidget(self.root_edit)
-        layout.addWidget(self.root_button)
-        layout.addSpacing(10)
-        layout.addWidget(QLabel("Trash Folder"))
-        layout.addWidget(self.trash_edit)
-        layout.addWidget(self.trash_button)
-        layout.addSpacing(12)
         layout.addWidget(self.buttons)
 
     def browse_root(self) -> None:
@@ -61,14 +67,17 @@ class AddProjectDialog(QDialog):
         if not folder:
             return
 
+        folder = folder.replace("\\", "/")
         self.root_edit.setText(folder)
 
         if not self.trash_edit.text().strip():
-            self.trash_edit.setText(os.path.join(folder, "01_Trash"))
+            trash = os.path.join(folder, "01_Trash").replace("\\", "/")
+            self.trash_edit.setText(trash)
 
     def browse_trash(self) -> None:
         folder = QFileDialog.getExistingDirectory(self, "Select Trash Folder")
         if folder:
+            folder = folder.replace("\\", "/")
             self.trash_edit.setText(folder)
 
     def accept(self) -> None:
@@ -111,6 +120,6 @@ class AddProjectDialog(QDialog):
         super().accept()
 
     def get_values(self) -> tuple[str, str]:
-        root = self.root_edit.text().strip()
-        trash = self.trash_edit.text().strip()
+        root = self.root_edit.text().strip().replace("\\", "/")
+        trash = self.trash_edit.text().strip().replace("\\", "/")
         return root, trash
