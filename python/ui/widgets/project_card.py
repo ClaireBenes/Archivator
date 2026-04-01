@@ -23,6 +23,8 @@ class ProjectCard(QFrame):
         self.setObjectName("projectCard")
         self.setFixedSize(CARD_WIDTH, CARD_HEIGHT)
 
+        self.setCursor(Qt.PointingHandCursor)
+
         self.setStyleSheet("""
         QFrame#projectCard {
             border: 1px solid #555;
@@ -75,17 +77,17 @@ class ProjectCard(QFrame):
         """
         menu = QMenu(self)
 
-        open_action = menu.addAction("Open Project Folder")
-        open_trash_action = menu.addAction("Open Trash Folder")
-        empty_action = menu.addAction("Empty Trash")
+        trash_menu = menu.addMenu("Trash")
+        open_trash_action = trash_menu.addAction("Open Trash Folder")
+        empty_action = trash_menu.addAction("Empty Trash")
+
         settings_action = menu.addAction("Project Settings")
+        menu.addSeparator()
         remove_action = menu.addAction("Remove Project")
 
         action = menu.exec(event.globalPos())
 
-        if action == open_action:
-            self.controller.open_project(self.project)
-        elif action == open_trash_action:
+        if action == open_trash_action:
             self.controller.open_project_trash(self.project)
         elif action == empty_action:
             self.controller.empty_project_trash(self.project)
@@ -93,3 +95,12 @@ class ProjectCard(QFrame):
             self.controller.open_project_settings(self.project)
         elif action == remove_action:
             self.controller.remove_project(self.project)
+
+    def mousePressEvent(self, event) -> None:
+        """
+        Open the project when the card is double-clicked.
+        """
+        if event.button() == Qt.LeftButton:
+            self.controller.open_project(self.project)
+
+        super().mousePressEvent(event)
