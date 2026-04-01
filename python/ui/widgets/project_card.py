@@ -10,7 +10,9 @@ class ProjectCard(QFrame):
 
     Responsibilities:
     - Display project thumbnail area and name
+    - Open project on left click
     - Show a context menu on right click
+    - Keep visual feedback for hover / active menu state
     - Delegate actions back to the main window
     """
 
@@ -20,25 +22,52 @@ class ProjectCard(QFrame):
         self.project = project
         self.controller = controller
 
+        self.is_hovered = False
+        self.menu_open = False
+
         self.setObjectName("projectCard")
         self.setFixedSize(CARD_WIDTH, CARD_HEIGHT)
-
         self.setCursor(Qt.PointingHandCursor)
+        self.setMouseTracking(True)
+        self.setAttribute(Qt.WA_Hover, True)
 
-        self.setStyleSheet("""
+        self.normal_style = """
         QFrame#projectCard {
             border: 1px solid #555;
             border-radius: 10px;
             background-color: #313131;
         }
-        QFrame#projectCard:hover {
+        QLabel {
+            color: white;
+            background: transparent;
+        }
+        """
+
+        self.hover_style = """
+        QFrame#projectCard {
             border: 1px solid #c38b59;
+            border-radius: 10px;
+            background-color: #353535;
         }
         QLabel {
             color: white;
             background: transparent;
         }
-        """)
+        """
+
+        self.active_style = """
+        QFrame#projectCard {
+            border: 1px solid #c38b59;
+            border-radius: 10px;
+            background-color: #3a342d;
+        }
+        QLabel {
+            color: white;
+            background: transparent;
+        }
+        """
+
+        self.apply_current_style()
 
         root_layout = QVBoxLayout(self)
         root_layout.setContentsMargins(0, 0, 0, 0)
@@ -71,10 +100,43 @@ class ProjectCard(QFrame):
         root_layout.addWidget(self.preview)
         root_layout.addWidget(info)
 
+    def apply_current_style(self) -> None:
+        """
+        Apply the correct visual state for the card.
+        """
+        if self.menu_open:
+            self.setStyleSheet(self.active_style)
+        elif self.is_hovered:
+            self.setStyleSheet(self.hover_style)
+        else:
+            self.setStyleSheet(self.normal_style)
+
+    def enterEvent(self, event) -> None:
+        self.is_hovered = True
+        self.apply_current_style()
+        super().enterEvent(event)
+
+    def leaveEvent(self, event) -> None:
+        self.is_hovered = False
+        self.apply_current_style()
+        super().leaveEvent(event)
+
+    def mousePressEvent(self, event) -> None:
+        """
+        Open project on left click.
+        """
+        if event.button() == Qt.LeftButton:
+            self.controller.open_project(self.project)
+
+        super().mousePressEvent(event)
+
     def contextMenuEvent(self, event) -> None:
         """
         Show the project context menu on right click.
         """
+        self.menu_open = True
+        self.apply_current_style()
+
         menu = QMenu(self)
 
         trash_menu = menu.addMenu("Trash")
@@ -87,6 +149,9 @@ class ProjectCard(QFrame):
 
         action = menu.exec(event.globalPos())
 
+        self.menu_open = False
+        self.apply_current_style()
+
         if action == open_trash_action:
             self.controller.open_project_trash(self.project)
         elif action == empty_action:
@@ -95,12 +160,3 @@ class ProjectCard(QFrame):
             self.controller.open_project_settings(self.project)
         elif action == remove_action:
             self.controller.remove_project(self.project)
-
-    def mousePressEvent(self, event) -> None:
-        """
-        Open the project when the card is double-clicked.
-        """
-        if event.button() == Qt.LeftButton:
-            self.controller.open_project(self.project)
-
-        super().mousePressEvent(event)
