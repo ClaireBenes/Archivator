@@ -123,6 +123,18 @@ class ArchiveService:
         """
         return self.registry.find_by_id(project_id)
 
+    def get_project_from_path(self, filepath: str) -> Project:
+        """
+        Resolve and return the project owning a given path.
+
+        Args:
+            filepath (str): A path inside the project.
+
+        Returns:
+            Project: Matching project.
+        """
+        return self.resolver.resolve(filepath)
+
     def open_project_root(self, project_id: str) -> None:
         """
         Open a project's root folder in the system file browser.
@@ -133,6 +145,16 @@ class ArchiveService:
         project = self.registry.find_by_id(project_id)
         self.desktop_service.open_folder(project.root)
 
+    def open_project_root_from_path(self, filepath: str) -> None:
+        """
+        Resolve the project from a path and open its root folder.
+
+        Args:
+            filepath (str): A path inside the project.
+        """
+        project = self.resolver.resolve(filepath)
+        self.desktop_service.open_folder(project.root)
+
     def open_project_trash(self, project_id: str) -> None:
         """
         Open a project's trash folder in the system file browser.
@@ -141,4 +163,18 @@ class ArchiveService:
             project_id (str): Project ID.
         """
         project = self.registry.find_by_id(project_id)
+        self.desktop_service.open_folder(project.trash_dir)
+
+    def open_trash_from_path(self, filepath: str) -> None:
+        """
+        Resolve the project from a path and open its trash folder.
+
+        Args:
+            filepath (str): A path inside the project.
+        """
+        project = self.resolver.resolve(filepath)
+
+        if not os.path.exists(project.trash_dir):
+            os.makedirs(project.trash_dir, exist_ok=True)
+
         self.desktop_service.open_folder(project.trash_dir)
