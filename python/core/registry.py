@@ -85,16 +85,32 @@ class ProjectRegistry:
             InvalidProjectError: If a project with the same root or trash_dir already exists.
         """
 
-        #TODO: Create the trash folder if it doesn't exist or raise an exception
-
         for existing in self.projects:
             if existing.root == project.root:
-                raise InvalidProjectError(f"Project with root '{project.root}' already exists.")
+                raise InvalidProjectError(
+                    f"Project with root '{project.root}' already exists."
+                )
 
             if existing.trash_dir == project.trash_dir:
-                raise InvalidProjectError(f"Trash directory '{project.trash_dir}' is already used.")
+                raise InvalidProjectError(
+                    f"Trash directory '{project.trash_dir}' is already used."
+                )
 
         self.projects.append(project)
+        self.save()
+
+    def remove_project(self, project_id: str) -> None:
+        """
+        Remove a project from the registry by its ID.
+
+        Args:
+            project_id (str): ID of the project to remove.
+
+        Raises:
+            InvalidProjectError: If no project with the given ID exists.
+        """
+        project = self.find_by_id(project_id)
+        self.projects.remove(project)
         self.save()
 
 

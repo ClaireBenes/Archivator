@@ -9,6 +9,7 @@ from core.trash_manager import TrashManager
 from core.exceptions import InvalidProjectError
 
 from services.desktop_service import DesktopService
+from services.path_validator import validate_project_paths, normalize_path
 
 
 class ArchiveService:
@@ -69,38 +70,36 @@ class ArchiveService:
     def add_project(self, root_path: str, trash_dir: str) -> Project:
         """
         Create and register a new project.
-
-        Args:
-            root_path (str): Root directory of the project.
-            trash_dir (str): Trash directory for the project.
-
-        Returns:
-            Project: The created project.
-
-        Raises:
-            InvalidProjectError: If paths are invalid.
         """
-        if not os.path.exists(root_path):
-            raise InvalidProjectError(f"Root path does not exist: {root_path}")
 
-        project_id = str(uuid.uuid4())
-        name = os.path.basename(os.path.abspath(root_path))
-        collect_config = {}
-        paths = []
+        root_path = normalize_path(root_path)
+        trash_dir = normalize_path(trash_dir)
+
+        validate_project_paths(root_path, trash_dir, self.registry.get_all())
+
+        if not os.path.exists(trash_dir):
+            os.makedirs(trash_dir, exist_ok=True)
 
         project = Project(
-            id=project_id,
-            name=name,
+            id=str(uuid.uuid4()),
+            name = os.path.basename(os.path.normpath(root_path)),
             root=root_path,
             trash_dir=trash_dir,
-            collect_config=collect_config,
-            paths=paths,
+            collect_config={},
+            paths=[],
         )
 
         self.registry.add_project(project)
-        self.registry.save()
-
         return project
+
+    def remove_project(self, project_id: str) -> None:
+        """
+        Remove a registered project.
+
+        Args:
+            project_id (str): ID of the project to remove.
+        """
+        self.registry.remove_project(project_id)
 
     def list_projects(self) -> List[Project]:
         """
@@ -157,24 +156,38 @@ class ArchiveService:
 
     def open_project_trash(self, project_id: str) -> None:
         """
-        Open a project's trash folder in the system file browser.
+        Open the trash folder for a registered project.
 
         Args:
             project_id (str): Project ID.
+
+        Raises:
+            InvalidProjectError: If the trash folder does not exist.
         """
         project = self.registry.find_by_id(project_id)
+
+        if not os.path.exists(project.trash_dir):
+            raise InvalidProjectError(
+                f"Trash directory does not exist for project '{project.name}': {project.trash_dir}"
+            )
+
         self.desktop_service.open_folder(project.trash_dir)
 
     def open_trash_from_path(self, filepath: str) -> None:
         """
-        Resolve the project from a path and open its trash folder.
+        Resolve a project from a path and open its trash folder.
 
         Args:
-            filepath (str): A path inside the project.
+            filepath (str): Path inside the project.
+
+        Raises:
+            InvalidProjectError: If the trash folder does not exist.
         """
         project = self.resolver.resolve(filepath)
 
         if not os.path.exists(project.trash_dir):
-            os.makedirs(project.trash_dir, exist_ok=True)
+            raise InvalidProjectError(
+                f"Trash directory does not exist for project '{project.name}': {project.trash_dir}"
+            )
 
         self.desktop_service.open_folder(project.trash_dir)

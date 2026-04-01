@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QPushButton,
     QVBoxLayout,
+    QMessageBox,
 )
 
 
@@ -18,7 +19,8 @@ class AddProjectDialog(QDialog):
     Responsibilities:
     - Ask for a project root path
     - Ask for a trash directory
-    - Return validated user input to the caller
+    - Validate paths
+    - Ask to create trash folder if missing
     """
 
     def __init__(self, parent=None) -> None:
@@ -31,7 +33,7 @@ class AddProjectDialog(QDialog):
         self.root_edit.setPlaceholderText("Project root path")
 
         self.trash_edit = QLineEdit()
-        self.trash_edit.setPlaceholderText("Trash path (optional)")
+        self.trash_edit.setPlaceholderText("Trash path")
 
         self.root_button = QPushButton("Browse Root")
         self.trash_button = QPushButton("Browse Trash")
@@ -39,9 +41,9 @@ class AddProjectDialog(QDialog):
         self.root_button.clicked.connect(self.browse_root)
         self.trash_button.clicked.connect(self.browse_trash)
 
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        buttons.accepted.connect(self.accept)
-        buttons.rejected.connect(self.reject)
+        self.buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttons.accepted.connect(self.accept)
+        self.buttons.rejected.connect(self.reject)
 
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel("Project Root"))
@@ -52,12 +54,9 @@ class AddProjectDialog(QDialog):
         layout.addWidget(self.trash_edit)
         layout.addWidget(self.trash_button)
         layout.addSpacing(12)
-        layout.addWidget(buttons)
+        layout.addWidget(self.buttons)
 
     def browse_root(self) -> None:
-        """
-        Let the user select the project root folder.
-        """
         folder = QFileDialog.getExistingDirectory(self, "Select Project Root")
         if not folder:
             return
@@ -68,24 +67,50 @@ class AddProjectDialog(QDialog):
             self.trash_edit.setText(os.path.join(folder, "01_Trash"))
 
     def browse_trash(self) -> None:
-        """
-        Let the user select the trash folder.
-        """
         folder = QFileDialog.getExistingDirectory(self, "Select Trash Folder")
         if folder:
             self.trash_edit.setText(folder)
 
-    def get_values(self) -> tuple[str, str]:
+    def accept(self) -> None:
         """
-        Return the entered root path and trash path.
-
-        Returns:
-            tuple[str, str]: (root_path, trash_path)
+        Validate inputs before closing dialog.
         """
         root = self.root_edit.text().strip()
         trash = self.trash_edit.text().strip()
 
-        if root and not trash:
-            trash = os.path.join(root, "01_Trash")
+        if not root:
+            QMessageBox.warning(self, "Missing Data", "Project root is required.")
+            return
 
+        if not os.path.exists(root):
+            QMessageBox.warning(self, "Invalid Root", "Project root does not exist.")
+            return
+
+        if not trash:
+            QMessageBox.warning(self, "Missing Trash", "Trash directory is required.")
+            return
+
+        if not os.path.exists(trash):
+            reply = QMessageBox.question(
+                self,
+                "Create Trash Folder",
+                f"The trash folder does not exist:\n\n{trash}\n\nCreate it?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes,
+            )
+
+            if reply != QMessageBox.Yes:
+                return
+
+            try:
+                os.makedirs(trash, exist_ok=True)
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Could not create trash folder:\n{e}")
+                return
+
+        super().accept()
+
+    def get_values(self) -> tuple[str, str]:
+        root = self.root_edit.text().strip()
+        trash = self.trash_edit.text().strip()
         return root, trash

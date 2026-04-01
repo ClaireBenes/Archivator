@@ -167,22 +167,17 @@ class MainWindow:
         return projects
 
     def add_project(self) -> None:
-        """
-        Open the add-project dialog and register a project if accepted.
-        """
         dialog = AddProjectDialog(self.window)
-        if dialog.exec() != AddProjectDialog.Accepted:
+
+        if dialog.exec() != QDialog.Accepted:
             return
 
         root_path, trash_dir = dialog.get_values()
 
-        if not root_path:
-            QMessageBox.warning(self.window, "Missing data", "Project root is required.")
-            return
-
         try:
             self.service.add_project(root_path, trash_dir)
             self.refresh_projects()
+
         except ArchivatorError as exc:
             QMessageBox.warning(self.window, "Archivator Error", str(exc))
         except Exception as exc:
@@ -244,13 +239,33 @@ class MainWindow:
 
     def remove_project(self, project) -> None:
         """
-        Placeholder for future project removal support.
+        Remove a project from the registry after user confirmation.
         """
-        QMessageBox.information(
+        reply = QMessageBox.question(
             self.window,
             "Remove Project",
-            f"Remove project is not implemented yet:\n\n{project.name}",
+            f"Remove '{project.name}' from Archivator?\n\n"
+            f"This will only unregister the project.\n"
+            f"No files or folders will be deleted.",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
         )
+
+        if reply != QMessageBox.Yes:
+            return
+
+        try:
+            self.service.remove_project(project.id)
+            self.refresh_projects()
+            QMessageBox.information(
+                self.window,
+                "Project Removed",
+                f"Project removed:\n\n{project.name}",
+            )
+        except ArchivatorError as exc:
+            QMessageBox.warning(self.window, "Archivator Error", str(exc))
+        except Exception as exc:
+            QMessageBox.critical(self.window, "Unexpected Error", str(exc))
 
     def show(self) -> None:
         """
