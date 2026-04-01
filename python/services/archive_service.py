@@ -1,11 +1,14 @@
 import os
 import uuid
+from typing import List
 
 from core.project import Project
 from core.registry import ProjectRegistry
 from core.resolver import ProjectResolver
 from core.trash_manager import TrashManager
 from core.exceptions import InvalidProjectError
+
+from services.desktop_service import DesktopService
 
 
 class ArchiveService:
@@ -15,20 +18,20 @@ class ArchiveService:
     - UI
     - External tools (Prism plugin)
 
-    This is the MAIN ENTRY POINT.
+    This is the main application entry point.
     """
 
     def __init__(self, registry: ProjectRegistry):
         """
-        Initialize the ArchiveService.
+        Initialize the archive service.
 
         Args:
             registry (ProjectRegistry): Project registry instance.
         """
-
         self.registry = registry
         self.resolver = ProjectResolver(registry)
         self.trash_manager = TrashManager(self.resolver)
+        self.desktop_service = DesktopService()
 
     def move_to_trash(self, filepath: str) -> str:
         """
@@ -40,7 +43,6 @@ class ArchiveService:
         Returns:
             str: Destination path in trash.
         """
-
         return self.trash_manager.move_to_trash(filepath)
 
     def restore(self, filepath: str) -> str:
@@ -53,7 +55,6 @@ class ArchiveService:
         Returns:
             str: Restored file path.
         """
-
         return self.trash_manager.restore(filepath)
 
     def empty_project_trash(self, project_id: str) -> None:
@@ -63,7 +64,6 @@ class ArchiveService:
         Args:
             project_id (str): ID of the project.
         """
-
         self.trash_manager.empty_trash(project_id)
 
     def add_project(self, root_path: str, trash_dir: str) -> Project:
@@ -80,18 +80,11 @@ class ArchiveService:
         Raises:
             InvalidProjectError: If paths are invalid.
         """
-
-        # Validate root path
         if not os.path.exists(root_path):
             raise InvalidProjectError(f"Root path does not exist: {root_path}")
 
-        # Generate unique ID
         project_id = str(uuid.uuid4())
-
-        # Use folder name as default project name
         name = os.path.basename(os.path.abspath(root_path))
-
-        # Default config (can be expanded later)
         collect_config = {}
         paths = []
 
@@ -104,18 +97,48 @@ class ArchiveService:
             paths=paths,
         )
 
-        # Add to registry (includes validation + save)
         self.registry.add_project(project)
         self.registry.save()
 
         return project
 
-    def list_projects(self) -> list:
+    def list_projects(self) -> List[Project]:
         """
         Get all registered projects.
 
         Returns:
-            list[Project]: List of projects.
+            List[Project]: List of registered projects.
         """
-
         return self.registry.get_all()
+
+    def get_project(self, project_id: str) -> Project:
+        """
+        Get a project by its ID.
+
+        Args:
+            project_id (str): Project ID.
+
+        Returns:
+            Project: Matching project.
+        """
+        return self.registry.find_by_id(project_id)
+
+    def open_project_root(self, project_id: str) -> None:
+        """
+        Open a project's root folder in the system file browser.
+
+        Args:
+            project_id (str): Project ID.
+        """
+        project = self.registry.find_by_id(project_id)
+        self.desktop_service.open_folder(project.root)
+
+    def open_project_trash(self, project_id: str) -> None:
+        """
+        Open a project's trash folder in the system file browser.
+
+        Args:
+            project_id (str): Project ID.
+        """
+        project = self.registry.find_by_id(project_id)
+        self.desktop_service.open_folder(project.trash_dir)
