@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap, QPainter, QPainterPath
 from PySide6.QtWidgets import QFrame, QLabel, QMenu, QVBoxLayout
 
 from ui.widgets.add_project_card import CARD_WIDTH, CARD_HEIGHT, PREVIEW_HEIGHT
@@ -16,11 +19,12 @@ class ProjectCard(QFrame):
     - Delegate actions back to the main window
     """
 
-    def __init__(self, project, controller, parent=None) -> None:
+    def __init__(self, project, controller, placeholder_path: str | None = None, parent=None) -> None:
         super().__init__(parent)
 
         self.project = project
         self.controller = controller
+        self.placeholder_path = placeholder_path
 
         self.is_hovered = False
         self.menu_open = False
@@ -82,6 +86,8 @@ class ProjectCard(QFrame):
         border-top-right-radius: 10px;
         """)
 
+        self.set_preview_image()
+
         info = QFrame()
         info.setStyleSheet("""
         background-color: #2b2b2b;
@@ -99,6 +105,69 @@ class ProjectCard(QFrame):
 
         root_layout.addWidget(self.preview)
         root_layout.addWidget(info)
+
+    def set_preview_image(self) -> None:
+        """
+        Load the project thumbnail if available, otherwise use the placeholder image.
+        """
+        image_path = getattr(self.project, "thumbnail_path", None)
+
+        if image_path and Path(image_path).exists():
+            final_path = image_path
+        else:
+            final_path = self.placeholder_path
+
+        if not final_path or not Path(final_path).exists():
+            self.preview.setText("No Preview")
+            return
+
+        pixmap = QPixmap(str(final_path))
+        if pixmap.isNull():
+            self.preview.setText("No Preview")
+            return
+
+        target_width = CARD_WIDTH
+        target_height = PREVIEW_HEIGHT
+        radius = 10
+
+        scaled = pixmap.scaled(
+            target_width,
+            target_height,
+            Qt.KeepAspectRatioByExpanding,
+            Qt.SmoothTransformation,
+        )
+
+        rounded = QPixmap(target_width, target_height)
+        rounded.fill(Qt.transparent)
+
+        painter = QPainter(rounded)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+
+        path = QPainterPath()
+        w = target_width
+        h = target_height
+        r = radius
+
+        # Top corners rounded only
+        path.moveTo(0, h)
+        path.lineTo(0, r)
+        path.quadTo(0, 0, r, 0)
+        path.lineTo(w - r, 0)
+        path.quadTo(w, 0, w, r)
+        path.lineTo(w, h)
+        path.closeSubpath()
+
+        painter.setClipPath(path)
+
+        # Center crop image
+        x = (scaled.width() - target_width) // 2
+        y = (scaled.height() - target_height) // 2
+        painter.drawPixmap(-x, -y, scaled)
+
+        painter.end()
+
+        self.preview.setPixmap(rounded)
+        self.preview.setFixedSize(target_width, target_height)
 
     def apply_current_style(self) -> None:
         """

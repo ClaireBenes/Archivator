@@ -3,17 +3,9 @@ import os
 class Project:
     """
     Represents a single project.
-
-    Holds:
-    - id: unique identifier (string)
-    - name: human-readable name
-    - root: absolute path to project root directory
-    - trash_dir: absolute path to trash directory
-    - collect_config: dict containing collection rules/settings
-    - paths: list of subdirectories (relative to root) to scan
     """
 
-    def __init__(self, id, name, root, trash_dir, collect_config, paths):
+    def __init__(self, id, name, root, trash_dir, collect_config, paths, thumbnail_path=None):
         """
         Initialize a Project instance.
 
@@ -24,6 +16,7 @@ class Project:
             trash_dir (str): Directory where deleted files are stored
             collect_config (dict): Cleanup/collection configuration
             paths (list[str]): Subdirectories to scan (relative to root)
+            thumbnail_path (str | None): Optional project thumbnail path
         """
 
         # Store basic info
@@ -37,6 +30,7 @@ class Project:
         # Store config and Ensure we always have usable defaults
         self.collect_config = collect_config or {}
         self.paths = paths or []
+        self.thumbnail_path = os.path.abspath(thumbnail_path) if thumbnail_path else None
 
     def is_path_inside(self, filepath: str) -> bool:
         """

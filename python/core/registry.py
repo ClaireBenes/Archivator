@@ -49,6 +49,7 @@ class ProjectRegistry:
                 trash_dir=proj_data["trash_dir"],
                 collect_config=proj_data.get("collect", {}),
                 paths=proj_data.get("paths", []),
+                thumbnail_path=proj_data.get("thumbnail_path"),
             )
             self.projects.append(project)
 
@@ -67,6 +68,7 @@ class ProjectRegistry:
                 "trash_dir": project.trash_dir,
                 "collect": project.collect_config,
                 "paths": project.paths,
+                "thumbnail_path": project.thumbnail_path,
             })
 
         os.makedirs(os.path.dirname(self.config_path), exist_ok=True)

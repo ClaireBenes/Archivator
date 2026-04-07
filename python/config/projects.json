@@ -6,7 +6,8 @@
             "root": "C:\\Users\\claire.benes\\Documents\\PythonProject\\StoragePrismPlugin\\OKO",
             "trash_dir": "C:\\Users\\claire.benes\\Documents\\PythonProject\\StoragePrismPlugin\\OKO\\01_Trash",
             "collect": {},
-            "paths": []
+            "paths": [],
+            "thumbnail_path": null
         },
         {
             "id": "e1a6b6c0-5c9d-4bce-8b44-9bbfb8cf319a",
@@ -14,15 +15,17 @@
             "root": "C:\\Users\\claire.benes\\Documents\\PythonProject\\StoragePrismPlugin\\TEST_Archi",
             "trash_dir": "C:\\Users\\claire.benes\\Documents\\PythonProject\\StoragePrismPlugin\\TEST_Archi\\trahs",
             "collect": {},
-            "paths": []
+            "paths": [],
+            "thumbnail_path": null
         },
         {
-            "id": "6ed16509-1eb3-46a6-93e3-2227778e9ed9",
+            "id": "2f20cd6b-5ae8-4c68-a6e6-ad5a1f554b85",
             "name": "Erialcs",
             "root": "C:\\Users\\claire.benes\\Documents\\PythonProject\\StoragePrismPlugin\\Erialcs",
             "trash_dir": "C:\\Users\\claire.benes\\Documents\\PythonProject\\StoragePrismPlugin\\Erialcs\\01_Trash",
             "collect": {},
-            "paths": []
+            "paths": [],
+            "thumbnail_path": null
         }
     ]
 }
