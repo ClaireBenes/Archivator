@@ -10,6 +10,7 @@ from core.registry import ProjectRegistry
 from services.archive_service import ArchiveService
 
 from ui.dialogs.add_project_dialog import AddProjectDialog
+from ui.dialogs.project_settings_dialog import ProjectSettingsDialog
 from ui.layouts.flow_layout import FlowLayout
 from ui.widgets.add_project_card import AddProjectCard
 from ui.widgets.project_card import ProjectCard
@@ -224,17 +225,30 @@ class MainWindow:
             QMessageBox.critical(self.window, "Unexpected Error", str(exc))
 
     def open_project_settings(self, project) -> None:
-        """
-        Display project settings information.
-        """
-        QMessageBox.information(
-            self.window,
-            "Project Settings",
-            f"Here you can later edit settings for:\n\n"
-            f"{project.name}\n\n"
-            f"Root: {project.root}\n"
-            f"Trash: {project.trash_dir}",
+        dialog = ProjectSettingsDialog(
+            project=project,
+            placeholder_path=str(self.placeholder_path),
+            parent=self.window,
         )
+
+        if dialog.exec() != QDialog.Accepted:
+            return
+
+        values = dialog.get_values()
+
+        try:
+            self.service.update_project(
+                project_id=project.id,
+                name=values["name"],
+                root_path=values["root"],
+                trash_dir=values["trash_dir"],
+                thumbnail_path=values["thumbnail_path"],
+            )
+            self.refresh_projects()
+        except ArchivatorError as exc:
+            QMessageBox.warning(self.window, "Archivator Error", str(exc))
+        except Exception as exc:
+            QMessageBox.critical(self.window, "Unexpected Error", str(exc))
 
     def remove_project(self, project) -> None:
         """

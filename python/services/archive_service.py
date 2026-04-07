@@ -92,6 +92,24 @@ class ArchiveService:
         self.registry.add_project(project)
         return project
 
+    def update_project(self, project_id: str, name: str, root_path: str, trash_dir: str, thumbnail_path=None) -> None:
+        root_path = normalize_path(root_path)
+        trash_dir = normalize_path(trash_dir)
+
+        validate_project_paths(
+            root_path=root_path,
+            trash_dir=trash_dir,
+            existing_projects=[p for p in self.registry.get_all() if p.id != project_id],
+        )
+
+        self.registry.update_project(
+            project_id=project_id,
+            name=name,
+            root=root_path,
+            trash_dir=trash_dir,
+            thumbnail_path=thumbnail_path,
+        )
+
     def remove_project(self, project_id: str) -> None:
         """
         Remove a registered project.

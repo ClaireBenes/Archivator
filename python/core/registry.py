@@ -115,6 +115,13 @@ class ProjectRegistry:
         self.projects.remove(project)
         self.save()
 
+    def update_project(self, project_id: str, name: str, root: str, trash_dir: str, thumbnail_path=None) -> None:
+        project = self.find_by_id(project_id)
+        project.name = name
+        project.root = root
+        project.trash_dir = trash_dir
+        project.thumbnail_path = thumbnail_path
+        self.save()
 
     def get_all(self) -> List[Project]:
         """
