@@ -5,6 +5,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap, QPainter, QPainterPath
 from PySide6.QtWidgets import *
 
+from ui.utils.image_helper import build_preview_pixmap
+
 class ProjectSettingsDialog(QDialog):
     """
     Dialog used to edit an existing project.
@@ -40,8 +42,8 @@ class ProjectSettingsDialog(QDialog):
         self.thumb_browse_button = QPushButton("Set Thumbnail")
         self.thumb_clear_button = QPushButton("Clear")
 
-        self.root_browse_button.setFixedWidth(90)
-        self.trash_browse_button.setFixedWidth(90)
+        self.root_browse_button.setFixedWidth(70)
+        self.trash_browse_button.setFixedWidth(70)
         self.thumb_clear_button.setFixedWidth(80)
 
         self.root_browse_button.clicked.connect(self.browse_root)
@@ -144,57 +146,22 @@ class ProjectSettingsDialog(QDialog):
         self.update_preview()
 
     def update_preview(self) -> None:
-        image_path = self.selected_thumbnail_path
-
-        if image_path and Path(image_path).exists():
-            final_path = image_path
-        else:
-            final_path = self.placeholder_path
-
-        if not final_path or not Path(final_path).exists():
-            self.preview_label.setPixmap(QPixmap())
-            self.preview_label.setText("No Preview")
-            return
-
-        pixmap = QPixmap(str(final_path))
-        if pixmap.isNull():
-            self.preview_label.setPixmap(QPixmap())
-            self.preview_label.setText("No Preview")
-            return
-
-        rounded = self.build_rounded_preview(
-            pixmap,
-            self.PREVIEW_WIDTH,
-            self.PREVIEW_HEIGHT,
-            self.PREVIEW_RADIUS,
+        pixmap = build_preview_pixmap(
+            image_path=self.selected_thumbnail_path,
+            placeholder_path=self.placeholder_path,
+            width=self.PREVIEW_WIDTH,
+            height=self.PREVIEW_HEIGHT,
+            radius=self.PREVIEW_RADIUS,
+            corners="all",
         )
+
+        if pixmap is None:
+            self.preview_label.setPixmap(QPixmap())
+            self.preview_label.setText("No Preview")
+            return
+
         self.preview_label.setText("")
-        self.preview_label.setPixmap(rounded)
-
-    def build_rounded_preview(self, pixmap: QPixmap, width: int, height: int, radius: int) -> QPixmap:
-        scaled = pixmap.scaled(
-            width,
-            height,
-            Qt.KeepAspectRatioByExpanding,
-            Qt.SmoothTransformation,
-        )
-
-        result = QPixmap(width, height)
-        result.fill(Qt.transparent)
-
-        painter = QPainter(result)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-
-        path = QPainterPath()
-        path.addRoundedRect(0, 0, width, height, radius, radius)
-        painter.setClipPath(path)
-
-        x = (scaled.width() - width) // 2
-        y = (scaled.height() - height) // 2
-        painter.drawPixmap(-x, -y, scaled)
-        painter.end()
-
-        return result
+        self.preview_label.setPixmap(pixmap)
 
     def accept(self) -> None:
         name = self.name_edit.text().strip()
@@ -203,37 +170,35 @@ class ProjectSettingsDialog(QDialog):
 
         if not name:
             QMessageBox.warning(self, "Missing Data", "Project name is required.")
+            self.name_edit.setFocus()
             return
 
         if not root:
             QMessageBox.warning(self, "Missing Data", "Project root is required.")
+            self.root_edit.setFocus()
             return
 
         if not os.path.exists(root):
             QMessageBox.warning(self, "Invalid Root", "Project root does not exist.")
+            self.root_edit.setFocus()
+            self.root_edit.selectAll()
             return
 
         if not trash:
             QMessageBox.warning(self, "Missing Data", "Trash folder is required.")
+            self.trash_edit.setFocus()
             return
 
         if not os.path.exists(trash):
-            reply = QMessageBox.question(
+            QMessageBox.warning(
                 self,
-                "Create Trash Folder",
-                f"The trash folder does not exist:\n\n{trash}\n\nCreate it?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes,
+                "Invalid Trash Folder",
+                f"The trash folder does not exist:\n\n{trash}\n\n"
+                "Please create it manually or choose an existing folder.",
             )
-
-            if reply != QMessageBox.Yes:
-                return
-
-            try:
-                os.makedirs(trash, exist_ok=True)
-            except Exception as exc:
-                QMessageBox.critical(self, "Error", f"Could not create trash folder:\n{exc}")
-                return
+            self.trash_edit.setFocus()
+            self.trash_edit.selectAll()
+            return
 
         super().accept()
 
