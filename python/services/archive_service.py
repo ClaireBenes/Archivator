@@ -92,14 +92,41 @@ class ArchiveService:
         self.registry.add_project(project)
         return project
 
-    def update_project(self, project_id: str, name: str, root_path: str, trash_dir: str, thumbnail_path=None) -> None:
+    def update_project(self, project_id: str, name: str, root_path: str, trash_dir: str, thumbnail_path: str | None = None) -> None:
+        """
+        Update an existing project.
+
+        Args:
+            project_id (str): Project ID.
+            name (str): New display name.
+            root_path (str): New project root path.
+            trash_dir (str): New trash directory.
+            thumbnail_path (str | None): Optional thumbnail path.
+
+        Raises:
+            InvalidProjectError: If input data is invalid or conflicts with another project.
+        """
+        name = name.strip()
         root_path = normalize_path(root_path)
         trash_dir = normalize_path(trash_dir)
+        thumbnail_path = normalize_path(thumbnail_path) if thumbnail_path else None
+
+        if not name:
+            raise InvalidProjectError("Project name cannot be empty.")
+
+        if not os.path.exists(root_path):
+            raise InvalidProjectError(f"Project root does not exist: {root_path}")
+
+        if not os.path.exists(trash_dir):
+            raise InvalidProjectError(f"Trash directory does not exist: {trash_dir}")
 
         validate_project_paths(
             root_path=root_path,
             trash_dir=trash_dir,
-            existing_projects=[p for p in self.registry.get_all() if p.id != project_id],
+            existing_projects=[
+                project for project in self.registry.get_all()
+                if project.id != project_id
+            ],
         )
 
         self.registry.update_project(

@@ -1,11 +1,21 @@
 import os
-from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QPixmap, QPainter, QPainterPath
-from PySide6.QtWidgets import *
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import (
+    QDialog,
+    QDialogButtonBox,
+    QFileDialog,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QVBoxLayout,
+)
 
 from ui.utils.image_helper import build_preview_pixmap
+
 
 class ProjectSettingsDialog(QDialog):
     """
@@ -17,11 +27,19 @@ class ProjectSettingsDialog(QDialog):
     - Edit trash path
     - Preview thumbnail
     - Select or clear thumbnail
+    - Validate fields live
+    - Disable Save while invalid
     """
 
     PREVIEW_WIDTH = 300
     PREVIEW_HEIGHT = 170
     PREVIEW_RADIUS = 10
+
+    FIELD_ERROR_STYLE = """
+    QLineEdit {
+        border: 1px solid #d96c6c;
+    }
+    """
 
     def __init__(self, project, placeholder_path: str | None = None, parent=None) -> None:
         super().__init__(parent)
@@ -42,14 +60,9 @@ class ProjectSettingsDialog(QDialog):
         self.thumb_browse_button = QPushButton("Set Thumbnail")
         self.thumb_clear_button = QPushButton("Clear")
 
-        self.root_browse_button.setFixedWidth(70)
-        self.trash_browse_button.setFixedWidth(70)
+        self.root_browse_button.setFixedWidth(90)
+        self.trash_browse_button.setFixedWidth(90)
         self.thumb_clear_button.setFixedWidth(80)
-
-        self.root_browse_button.clicked.connect(self.browse_root)
-        self.trash_browse_button.clicked.connect(self.browse_trash)
-        self.thumb_browse_button.clicked.connect(self.browse_thumbnail)
-        self.thumb_clear_button.clicked.connect(self.clear_thumbnail)
 
         self.preview_label = QLabel()
         self.preview_label.setFixedSize(self.PREVIEW_WIDTH, self.PREVIEW_HEIGHT)
@@ -62,7 +75,20 @@ class ProjectSettingsDialog(QDialog):
             }
         """)
 
-        self.update_preview()
+        self.buttons = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
+        self.save_button = self.buttons.button(QDialogButtonBox.Save)
+
+        self.root_browse_button.clicked.connect(self.browse_root)
+        self.trash_browse_button.clicked.connect(self.browse_trash)
+        self.thumb_browse_button.clicked.connect(self.browse_thumbnail)
+        self.thumb_clear_button.clicked.connect(self.clear_thumbnail)
+
+        self.buttons.accepted.connect(self.accept)
+        self.buttons.rejected.connect(self.reject)
+
+        self.name_edit.textChanged.connect(self.validate)
+        self.root_edit.textChanged.connect(self.validate)
+        self.trash_edit.textChanged.connect(self.validate)
 
         form_layout = QGridLayout()
         form_layout.setHorizontalSpacing(12)
@@ -110,27 +136,35 @@ class ProjectSettingsDialog(QDialog):
         content_row.addLayout(left_panel, 3)
         content_row.addLayout(right_panel, 2)
 
-        self.buttons = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
-        self.buttons.accepted.connect(self.accept)
-        self.buttons.rejected.connect(self.reject)
-
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(18, 18, 18, 18)
         main_layout.setSpacing(18)
         main_layout.addLayout(content_row)
         main_layout.addWidget(self.buttons)
 
+        self.update_preview()
+        self.validate()
+
     def browse_root(self) -> None:
+        """
+        Let the user choose a new project root folder.
+        """
         folder = QFileDialog.getExistingDirectory(self, "Select Project Root")
         if folder:
             self.root_edit.setText(folder.replace("\\", "/"))
 
     def browse_trash(self) -> None:
+        """
+        Let the user choose a new trash folder.
+        """
         folder = QFileDialog.getExistingDirectory(self, "Select Trash Folder")
         if folder:
             self.trash_edit.setText(folder.replace("\\", "/"))
 
     def browse_thumbnail(self) -> None:
+        """
+        Let the user choose a thumbnail image.
+        """
         filepath, _ = QFileDialog.getOpenFileName(
             self,
             "Select Thumbnail",
@@ -142,10 +176,71 @@ class ProjectSettingsDialog(QDialog):
             self.update_preview()
 
     def clear_thumbnail(self) -> None:
+        """
+        Remove the custom thumbnail and fall back to the placeholder.
+        """
         self.selected_thumbnail_path = None
         self.update_preview()
 
+    def clear_validation_styles(self) -> None:
+        """
+        Remove validation styles from all editable fields.
+        """
+        self.name_edit.setStyleSheet("")
+        self.root_edit.setStyleSheet("")
+        self.trash_edit.setStyleSheet("")
+
+    def set_field_error(self, field: QLineEdit) -> None:
+        """
+        Highlight one invalid field.
+        """
+        self.clear_validation_styles()
+        field.setStyleSheet(self.FIELD_ERROR_STYLE)
+
+    def validate(self) -> None:
+        """
+        Live validation of all editable fields.
+
+        The dialog shows no text error message.
+        It only highlights the invalid field and disables Save.
+        """
+        name = self.name_edit.text().strip()
+        root = self.root_edit.text().strip().replace("\\", "/")
+        trash = self.trash_edit.text().strip().replace("\\", "/")
+
+        self.clear_validation_styles()
+
+        if not name:
+            self.set_field_error(self.name_edit)
+            self.save_button.setEnabled(False)
+            return
+
+        if not root:
+            self.set_field_error(self.root_edit)
+            self.save_button.setEnabled(False)
+            return
+
+        if not os.path.exists(root):
+            self.set_field_error(self.root_edit)
+            self.save_button.setEnabled(False)
+            return
+
+        if not trash:
+            self.set_field_error(self.trash_edit)
+            self.save_button.setEnabled(False)
+            return
+
+        if not os.path.exists(trash):
+            self.set_field_error(self.trash_edit)
+            self.save_button.setEnabled(False)
+            return
+
+        self.save_button.setEnabled(True)
+
     def update_preview(self) -> None:
+        """
+        Update the thumbnail preview using the shared UI helper.
+        """
         pixmap = build_preview_pixmap(
             image_path=self.selected_thumbnail_path,
             placeholder_path=self.placeholder_path,
@@ -164,45 +259,20 @@ class ProjectSettingsDialog(QDialog):
         self.preview_label.setPixmap(pixmap)
 
     def accept(self) -> None:
-        name = self.name_edit.text().strip()
-        root = self.root_edit.text().strip().replace("\\", "/")
-        trash = self.trash_edit.text().strip().replace("\\", "/")
+        """
+        Only close if the form is currently valid.
+        """
+        self.validate()
 
-        if not name:
-            QMessageBox.warning(self, "Missing Data", "Project name is required.")
-            self.name_edit.setFocus()
-            return
-
-        if not root:
-            QMessageBox.warning(self, "Missing Data", "Project root is required.")
-            self.root_edit.setFocus()
-            return
-
-        if not os.path.exists(root):
-            QMessageBox.warning(self, "Invalid Root", "Project root does not exist.")
-            self.root_edit.setFocus()
-            self.root_edit.selectAll()
-            return
-
-        if not trash:
-            QMessageBox.warning(self, "Missing Data", "Trash folder is required.")
-            self.trash_edit.setFocus()
-            return
-
-        if not os.path.exists(trash):
-            QMessageBox.warning(
-                self,
-                "Invalid Trash Folder",
-                f"The trash folder does not exist:\n\n{trash}\n\n"
-                "Please create it manually or choose an existing folder.",
-            )
-            self.trash_edit.setFocus()
-            self.trash_edit.selectAll()
+        if not self.save_button.isEnabled():
             return
 
         super().accept()
 
     def get_values(self) -> dict:
+        """
+        Return current dialog values.
+        """
         return {
             "name": self.name_edit.text().strip(),
             "root": self.root_edit.text().strip().replace("\\", "/"),
