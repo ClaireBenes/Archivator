@@ -5,7 +5,7 @@ from typing import List
 from core.project import Project
 from core.registry import ProjectRegistry
 from core.resolver import ProjectResolver
-from core.trash_manager import TrashManager
+from core.trash.trash_manager import TrashManager
 from core.exceptions import InvalidProjectError
 
 from services.desktop_service import DesktopService

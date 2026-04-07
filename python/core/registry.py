@@ -116,6 +116,16 @@ class ProjectRegistry:
         self.save()
 
     def update_project(self, project_id: str, name: str, root: str, trash_dir: str, thumbnail_path=None) -> None:
+        """
+        Update an existing project and save the registry.
+
+        Args:
+            project_id (str): Project ID.
+            name (str): New display name.
+            root (str): New project root path.
+            trash_dir (str): New trash directory.
+            thumbnail_path (str | None): Optional thumbnail path.
+        """
         project = self.find_by_id(project_id)
         project.name = name
         project.root = root

@@ -20,8 +20,8 @@ def is_same_or_subpath(child: str, parent: str) -> bool:
     Return True if 'child' is the same path as 'parent'
     or located inside it.
     """
-    child = normalize_path(child)
-    parent = normalize_path(parent)
+    child = normalize_path_for_compare(child)
+    parent = normalize_path_for_compare(parent)
 
     try:
         common = os.path.commonpath([child, parent])
