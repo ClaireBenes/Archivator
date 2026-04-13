@@ -74,6 +74,7 @@ class TrashManager:
                 "original_name": os.path.basename(src),
                 "trashed_name": os.path.basename(dest),
                 "deleted_at": deleted_at,
+                "is_main_file": related_filename == filename,
             }
             write_metadata(dest, metadata)
 
