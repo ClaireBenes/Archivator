@@ -1,230 +1,96 @@
-# Archivator – Architecture Overview
+# Archivator
 
-## 📌 Goal
-Archivator is a standalone, software-agnostic archiving system designed to manage project-based file deletion, recovery, and automated cleanup. It integrates with external tools (e.g., DCCs like Prism) through a simple API, without embedding any software-specific logic.
+A project-based storage and trash management tool designed for VFX pipelines.
 
----
-
-# 🧱 Project Structure Overview
-```
-archivator/
-│
-├── core/
-├── services/
-├── cli/
-├── ui/
-└── config/
-```
----
-
-# 🧠 CORE LAYER (Pure Logic)
-
-The **core** contains all fundamental logic. It is independent from UI, CLI, or external software.
+Archivator provides a structured way to manage multiple projects, each with its own storage and dedicated trash system — enabling safe deletion, recovery, and future automation of cleanup workflows.
 
 ---
 
-## `models.py`
+## Overview
 
-### `Project`
-Represents a single project configuration.
+Archivator acts as a **centralized storage manager** where each project is defined by:
 
-**Responsibilities:**
-- Store project metadata (id, name, root path, trash directory)
-- Store collection settings and scan paths
-- Provide helper methods (e.g., checking if a file belongs to the project)
+- A **Project Root** (active working directory)
+- A **Trash Directory** (safe deletion zone)
 
----
-
-## `registry.py`
-
-### `ProjectRegistry`
-Manages all project configurations stored in `projects.json`.
-
-**Responsibilities:**
-- Load and save project data
-- Add, remove, and update projects
-- Ensure data validity (unique trash directories, valid paths)
-- Provide access to all registered projects
+Instead of permanently deleting files, tools can move them to a project-specific trash folder, allowing recovery and controlled cleanup.
 
 ---
 
-## `resolver.py`
+## Features
 
-### `ProjectResolver`
-Determines which project a given file belongs to.
-
-**Responsibilities:**
-- Take a file path as input
-- Match it against known project roots
-- Return the corresponding `Project` object
-
----
-
-## `trash_manager.py`
-
-### `TrashManager`
-Handles all file deletion and recovery operations.
-
-**Responsibilities:**
-- Move files to the correct project trash directory
-- Preserve original folder structure inside trash
-- Restore files to their original location
-- Empty a project's trash safely
+- Manage multiple projects
+- Per-project trash directories
+- Add, edit, and remove projects
+- Search projects by name
+- Custom project thumbnails
+- Open project or trash in file explorer
+- Empty trash safely per project
+- Basic CLI support (work in progress)
 
 ---
 
-## `collector.py`
+## Screenshots
 
-### `Collector`
-Implements automated cleanup logic.
+### Project Browser
+<img width="895" height="616" alt="image" src="https://github.com/user-attachments/assets/0744dbd5-6474-4051-90ef-9298b24bd8ae" />
 
-**Responsibilities:**
-- Scan project directories
-- Apply cleanup rules (e.g., file age, type)
-- Move eligible files to trash
 
----
-
-## `exceptions.py`
-
-### Custom Exceptions
-
-**Examples:**
-- `ProjectNotFoundError`
-- `InvalidProjectError`
-
-**Purpose:**
-- Provide clear and structured error handling
+### Project Settings
+<img width="894" height="618" alt="image" src="https://github.com/user-attachments/assets/356cb7c2-7ba7-4475-bcdc-fe1fe6ac8d39" />
 
 ---
 
-# 🚀 SERVICE LAYER (Orchestration)
+## Example Integration
 
-The **services** layer acts as the main entry point for external systems (CLI, UI, plugins).
+Archivator is designed to integrate with production tools.
 
----
+A reference implementation is available via the Prism plugin:
 
-## `archive_service.py`
+👉 https://github.com/ClaireBenes/PrismPlugin-TrashManager
 
-### `ArchiveService`
-High-level interface for all archive operations.
-
-**Responsibilities:**
-- Move files to trash (resolving project automatically)
-- Restore files
-- Empty trash
-- Add and list projects
-
-**Note:**
-This is the primary API used by external tools like Prism.
+This plugin demonstrates how Archivator can be used as a backend to:
+- Redirect file deletion to a safe trash system
+- Restore deleted files
+- Provide direct access to project trash from within a DCC pipeline
 
 ---
 
-## `scheduler_service.py`
+## Roadmap
 
-### `SchedulerService`
-Manages automated background tasks.
+Planned improvements include:
 
-**Responsibilities:**
-- Read project collection settings
-- Schedule periodic cleanup jobs
-- Execute collector tasks at defined intervals
+### Packaging
+- Distribute Archivator as a pip-installable package
+- Remove need for local path dependencies in integrations
 
----
+### Automated Cleanup System
+- Detect unused or unreferenced files
+- Move candidates to trash safely
+- Configurable rules:
+  - Target directories
+  - Time-based thresholds
+  - Dependency validation
 
-# 💻 CLI LAYER
-
-## `cli/main.py`
-
-### CLI Entry Point
-
-**Responsibilities:**
-- Provide command-line access to Archivator
-- Parse user commands
-- Call `ArchiveService` methods
-
-**Examples:**
-- Add project
-- Move file to trash
-- Restore file
-- Start background scheduler
+### Pipeline Intelligence
+- Non-destructive cleanup workflows
+- Smarter file analysis to prevent breaking projects
 
 ---
 
-# 🖥️ UI LAYER
+## Technical Details
 
-## `ui/app.py`
-
-### `ArchivatorApp`
-Main graphical application.
-
-**Responsibilities:**
-- Display project list
-- Allow editing project settings
-- Trigger archive operations via `ArchiveService`
+- Python 3.11
+- PySide6 (Qt-based UI)
+- Windows (currently supported platform)
 
 ---
 
-## `ui/views/`
+## Installation (Current)
 
-### UI Components
+Archivator is not yet packaged.
 
-**Responsibilities:**
-- Define visual elements (project grid, settings panels, etc.)
-- Handle user interaction
+Clone the repository and run locally:
 
----
-
-# ⚙️ CONFIGURATION
-
-## `config/projects.json`
-
-### Project Database
-
-**Purpose:**
-- Store all project configurations
-
-**Contains:**
-- Project metadata (id, name, root)
-- Trash directory
-- Collection settings
-- Paths to scan
-
----
-
-# 🧭 Design Principles
-
-- **Software-agnostic:** No dependency on external tools (Prism, ShotGrid, etc.)
-- **Path-driven:** File paths determine project context automatically
-- **Single source of truth:** All project data stored in one registry file
-- **Separation of concerns:** Clear distinction between logic, orchestration, and interface
-- **Extensible:** Easy to add new features (rules, UI, integrations)
-
----
-
-# 🔌 Integration Philosophy
-
-External tools (e.g., Prism) interact with Archivator by simply calling:
-
-
-Archivator handles:
-- Project detection
-- Trash routing
-- File operations
-
-No external system needs to manage project configuration.
-
----
-
-# ✅ Summary
-
-Archivator is designed as a modular, maintainable system where:
-- The **core** handles logic
-- The **services** expose functionality
-- The **interfaces (CLI/UI)** provide access
-- External tools remain lightweight and decoupled
-
-This architecture ensures scalability, flexibility, and ease of integration in production pipelines.
-
-# 🧩 Architecture Diagram
-<img width="501" height="521" alt="Archivator" src="https://github.com/user-attachments/assets/c2c652d1-133e-4c7a-857a-2351737719be" />
+```bash
+git clone https://github.com/ClaireBenes/Archivator
