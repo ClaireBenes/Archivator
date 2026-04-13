@@ -55,6 +55,68 @@ This plugin demonstrates how Archivator can be used as a backend to:
 - Provide direct access to project trash from within a DCC pipeline
 
 ---
+## Data & Architecture
+
+Archivator relies on a lightweight, filesystem-based approach for managing data and state.
+
+### Persistence
+
+The system maintains a persistent state through two main mechanisms:
+
+- **Project Registry (JSON)**  
+  A central configuration file stores all registered projects, including their root paths, trash directories, and metadata.
+
+- **Per-File Metadata (.archivator.json)**  
+  When files are moved to trash, associated metadata files are created to store:
+  - Original file path
+  - Deletion date
+  - Grouping information (for related files)
+
+This approach keeps the system simple, transparent, and easy to inspect or modify without requiring a database.
+
+---
+
+### Execution Model
+
+Archivator currently operates in an **on-demand mode**:
+
+- Actions such as *move to trash* and *restore* are executed immediately
+- No background processing or job queue is implemented yet
+
+This design keeps the tool lightweight while allowing future extension toward more advanced workflows.
+
+---
+
+### Configuration Granularity (Planned)
+
+Configuration is currently defined at the **project level**, but the system is designed to support more granular rules in the future.
+
+Planned extensions include:
+
+- Rules based on **file types** (e.g. `.exr`, `.ma`, `.abc`)
+- Context-aware behavior (e.g. render vs compositing outputs)
+- Department-specific configurations
+
+Example use case:
+- Limit the number of stored versions for heavy render outputs (EXR)
+- Keep more history for lighter or critical files
+
+---
+
+### Future Architecture
+
+Archivator is currently a **local application**, but a client/server architecture is being considered for future development.
+
+This would enable:
+
+- Centralized file analysis and cleanup
+- Background processing (scheduler-based tasks)
+- Better permission and access management
+- Integration via APIs (e.g. REST) with external tools such as Prism
+
+This evolution would allow Archivator to scale from a local tool to a more production-ready pipeline service.
+
+---
 
 ## Roadmap
 
