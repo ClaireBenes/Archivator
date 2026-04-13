@@ -1,7 +1,6 @@
 import json
 import os
 from datetime import datetime
-from pathlib import Path
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import *
@@ -25,12 +24,16 @@ class RecoverTrashDialog(QDialog):
         self.search_edit = QLineEdit()
         self.search_edit.setPlaceholderText("Search by file name or trash path...")
 
-        self.refresh_button = QPushButton("Refresh")
-        self.refresh_button.setFixedWidth(90)
+        self.sort_combo = QComboBox()
+        self.sort_combo.addItems([
+            "Last Deleted",
+            "Name",
+        ])
+        self.sort_combo.setFixedWidth(140)
 
         top_row = QHBoxLayout()
         top_row.addWidget(self.search_edit)
-        top_row.addWidget(self.refresh_button)
+        top_row.addWidget(self.sort_combo)
 
         self.table = QTableWidget(0, 4)
         self.table.setHorizontalHeaderLabels([
@@ -74,7 +77,7 @@ class RecoverTrashDialog(QDialog):
         layout.addWidget(self.buttons)
 
         self.search_edit.textChanged.connect(self.apply_filter)
-        self.refresh_button.clicked.connect(self.reload_entries)
+        self.sort_combo.currentIndexChanged.connect(self.apply_filter)
         self.table.itemSelectionChanged.connect(self.update_restore_state)
         self.table.itemDoubleClicked.connect(self.accept)
         self.buttons.accepted.connect(self.accept)
@@ -165,13 +168,20 @@ class RecoverTrashDialog(QDialog):
         search_text = self.search_edit.text().strip().lower()
 
         if not search_text:
-            visible = self.entries
+            visible = list(self.entries)
         else:
             visible = [
                 entry for entry in self.entries
                 if search_text in entry["name"].lower()
-                or search_text in entry["trash_path"].lower()
+                   or search_text in entry["trash_path"].lower()
             ]
+
+        sort_mode = self.sort_combo.currentText()
+
+        if sort_mode == "Name":
+            visible.sort(key=lambda entry: entry["name"].lower())
+        else:
+            visible.sort(key=lambda entry: entry["deleted_at"], reverse=True)
 
         self.populate_table(visible)
 
