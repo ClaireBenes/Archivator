@@ -90,65 +90,100 @@ class RecoverTrashDialog(QDialog):
         self.apply_filter()
 
     def collect_main_entries(self) -> list[dict]:
+        """
+        Build a list of recoverable trash entries.
+
+        Groups metadata by ``group_id``, selects one main file per group,
+        and prepares entries for UI display.
+
+        Returns:
+            list[dict]: Recoverable entries with name, trash path,
+            deletion date, and related file count.
+        """
+
+        # If trash folder doesn't exist, nothing to show
         if not os.path.exists(self.trash_dir):
             return []
 
+        # Dictionary to group metadata by group_id (str)
         metadata_by_group: dict[str, list[dict]] = {}
 
+        # Walk through all files in the trash directory
         for root, _, files in os.walk(self.trash_dir):
             for filename in files:
+
+                # Only process metadata files (ignore real files)
                 if not filename.endswith(METADATA_SUFFIX):
                     continue
 
                 metadata_path = os.path.join(root, filename)
 
+                # Read metadata JSON safely
                 try:
                     with open(metadata_path, "r", encoding="utf-8") as handle:
                         data = json.load(handle)
                 except Exception:
                     continue
 
+                # Get the group_id (used to group related files)
                 group_id = data.get("group_id")
                 if not group_id:
                     continue
 
-                metadata_by_group.setdefault(group_id, []).append(data)
+                # Create list for this group if it doesn't exist
+                if group_id not in metadata_by_group:
+                    metadata_by_group[group_id] = []
 
+                # Add this metadata entry to its group
+                metadata_by_group[group_id].append(data)
+
+        # Final list used by the UI
         results = []
 
+        # Process each group of related files
         for group_id, entries in metadata_by_group.items():
             main_entry = None
 
+            # Try to find the "main" file (the one originally selected)
             for entry in entries:
                 if entry.get("is_main_file"):
                     main_entry = entry
                     break
 
+            # Fallback: if no main file found, take the first one
             if main_entry is None and entries:
                 main_entry = entries[0]
 
+            # If still nothing, skip this group
             if main_entry is None:
                 continue
 
+            # Get the actual trashed file path
             trashed_path = main_entry.get("trashed_path")
+
+            # Skip if file is missing (e.g. manually deleted)
             if not trashed_path or not os.path.exists(trashed_path):
                 continue
 
+            # Build a relative path from trash root (for cleaner UI display)
             relative_trash_path = os.path.relpath(
                 os.path.dirname(trashed_path),
                 self.trash_dir
             ).replace("\\", "/")
 
+            # Add a clean entry for the UI table
             results.append({
                 "group_id": group_id,
                 "name": main_entry.get("original_name", os.path.basename(trashed_path)),
                 "trash_path": relative_trash_path,
-                "trashed_path": trashed_path,
+                "trashed_path": trashed_path,  # used later for restore
                 "deleted_at": self.format_deleted_at(main_entry.get("deleted_at", "")),
-                "related_count": len(entries),
+                "related_count": len(entries),  # number of files in this group
             })
 
+        # Sort by deletion date (newest first)
         results.sort(key=lambda item: item["deleted_at"], reverse=True)
+
         return results
 
     def format_deleted_at(self, value: str) -> str:
@@ -173,7 +208,6 @@ class RecoverTrashDialog(QDialog):
             visible = [
                 entry for entry in self.entries
                 if search_text in entry["name"].lower()
-                   or search_text in entry["trash_path"].lower()
             ]
 
         sort_mode = self.sort_combo.currentText()
@@ -196,6 +230,7 @@ class RecoverTrashDialog(QDialog):
             deleted_item = QTableWidgetItem(entry["deleted_at"])
             count_item = QTableWidgetItem(str(entry["related_count"]))
 
+            #set path data for restoration to the name. Qt.UserRole makes it hidden for the user
             name_item.setData(Qt.UserRole, entry["trashed_path"])
             count_item.setTextAlignment(Qt.AlignCenter)
 
@@ -211,6 +246,12 @@ class RecoverTrashDialog(QDialog):
         self.restore_button.setEnabled(bool(self.table.selectedItems()))
 
     def get_selected_file(self) -> str | None:
+        """
+        Finds the currently selected row
+
+        Returns:
+            The hidden real trash file path attached to that row
+        """
         selected_ranges = self.table.selectedRanges()
         if not selected_ranges:
             return None
