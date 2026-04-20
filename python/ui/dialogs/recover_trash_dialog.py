@@ -22,7 +22,7 @@ class RecoverTrashDialog(QDialog):
         self.resize(950, 550)
 
         self.search_edit = QLineEdit()
-        self.search_edit.setPlaceholderText("Search by file name or trash path...")
+        self.search_edit.setPlaceholderText("Search by file name...")
 
         self.sort_combo = QComboBox()
         self.sort_combo.addItems([
