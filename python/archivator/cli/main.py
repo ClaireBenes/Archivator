@@ -3,9 +3,7 @@ import sys
 import os
 
 # Ensure Python root folder is on sys.path
-root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if root not in sys.path:
-    sys.path.insert(0, root)
+from archivator.core.paths import CONFIG_PATH
 
 from archivator.core.registry import ProjectRegistry
 from archivator.services.archive_service import ArchiveService
@@ -24,11 +22,8 @@ def main():
         archivator list
     """
 
-    # Absolute path to projects.json
-    config_path = os.path.abspath(os.path.join(root, "config", "projects.json"))
-
     # Initialize core services
-    registry = ProjectRegistry(config_path)
+    registry = ProjectRegistry(str(CONFIG_PATH))
     registry.load()
 
     service = ArchiveService(registry)

@@ -7,6 +7,8 @@ from PySide6.QtWidgets import *
 
 from archivator.core.exceptions import ArchivatorError
 from archivator.core.registry import ProjectRegistry
+from archivator.core.paths import CONFIG_PATH, DATA_PATH, PLACEHOLDER_PATH, UI_PATH
+
 from archivator.services.archive_service import ArchiveService
 
 from archivator.ui.dialogs.add_project_dialog import AddProjectDialog
@@ -15,9 +17,6 @@ from archivator.ui.layouts.flow_layout import FlowLayout
 from archivator.ui.widgets.add_project_card import AddProjectCard
 from archivator.ui.widgets.project_card import ProjectCard
 
-ROOT = Path(__file__).resolve().parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
 
 class MainWindow:
@@ -32,10 +31,10 @@ class MainWindow:
     """
 
     def __init__(self) -> None:
-        self.ui_path = ROOT / "ui" / "view" / "interface.ui"
-        self.config_path = ROOT / "config" / "projects.json"
-        self.data_path = ROOT.parent.parent / "data"
-        self.placeholder_path = self.data_path / "placeholder.png"
+        self.ui_path = UI_PATH
+        self.config_path = CONFIG_PATH
+        self.data_path = DATA_PATH
+        self.placeholder_path = PLACEHOLDER_PATH
 
         self.registry = ProjectRegistry(str(self.config_path))
         self.registry.load()
