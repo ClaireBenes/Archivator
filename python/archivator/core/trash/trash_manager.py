@@ -3,8 +3,8 @@ import shutil
 import uuid
 from datetime import datetime, UTC
 
-from core.exceptions import ArchivatorError
-from core.resolver import ProjectResolver
+from archivator.core.exceptions import ArchivatorError
+from archivator.core.resolver import ProjectResolver
 
 from .trash_metadata import ( get_metadata_group_entries, get_metadata_path, read_metadata, write_metadata, METADATA_SUFFIX, )
 from .trash_paths import ( clean_path, cleanup_empty_dirs, compute_trash_path, make_unique_path, )

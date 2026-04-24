@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "archivator"
+version = "0.1.0"
+description = "Project-based archive and trash manager for VFX pipelines"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "PySide6",
+]
+
+[project.scripts]
+archivator = "archivator.ui.app:main"
+archivator-cli = "archivator.cli.main:main"
+
+[tool.setuptools.packages.find]
+where = ["python"]

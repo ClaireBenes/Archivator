@@ -1,6 +1,6 @@
-from core.project import Project
-from core.registry import ProjectRegistry
-from core.exceptions import ProjectNotFoundError
+from archivator.core.project import Project
+from archivator.core.registry import ProjectRegistry
+from archivator.core.exceptions import ProjectNotFoundError
 
 class ProjectResolver:
     """

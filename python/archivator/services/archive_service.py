@@ -2,14 +2,14 @@ import os
 import uuid
 from typing import List
 
-from core.project import Project
-from core.registry import ProjectRegistry
-from core.resolver import ProjectResolver
-from core.trash.trash_manager import TrashManager
-from core.exceptions import InvalidProjectError
+from archivator.core.project import Project
+from archivator.core.registry import ProjectRegistry
+from archivator.core.resolver import ProjectResolver
+from archivator.core.trash.trash_manager import TrashManager
+from archivator.core.exceptions import InvalidProjectError
 
-from services.desktop_service import DesktopService
-from services.path_validator import validate_project_paths, normalize_path
+from archivator.services.desktop_service import DesktopService
+from archivator.services.path_validator import validate_project_paths, normalize_path
 
 
 class ArchiveService:

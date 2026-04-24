@@ -5,15 +5,15 @@ from PySide6.QtCore import Qt
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import *
 
-from core.exceptions import ArchivatorError
-from core.registry import ProjectRegistry
-from services.archive_service import ArchiveService
+from archivator.core.exceptions import ArchivatorError
+from archivator.core.registry import ProjectRegistry
+from archivator.services.archive_service import ArchiveService
 
-from ui.dialogs.add_project_dialog import AddProjectDialog
-from ui.dialogs.project_settings_dialog import ProjectSettingsDialog
-from ui.layouts.flow_layout import FlowLayout
-from ui.widgets.add_project_card import AddProjectCard
-from ui.widgets.project_card import ProjectCard
+from archivator.ui.dialogs.add_project_dialog import AddProjectDialog
+from archivator.ui.dialogs.project_settings_dialog import ProjectSettingsDialog
+from archivator.ui.layouts.flow_layout import FlowLayout
+from archivator.ui.widgets.add_project_card import AddProjectCard
+from archivator.ui.widgets.project_card import ProjectCard
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
@@ -34,7 +34,7 @@ class MainWindow:
     def __init__(self) -> None:
         self.ui_path = ROOT / "ui" / "view" / "interface.ui"
         self.config_path = ROOT / "config" / "projects.json"
-        self.data_path = ROOT.parent / "data"
+        self.data_path = ROOT.parent.parent / "data"
         self.placeholder_path = self.data_path / "placeholder.png"
 
         self.registry = ProjectRegistry(str(self.config_path))

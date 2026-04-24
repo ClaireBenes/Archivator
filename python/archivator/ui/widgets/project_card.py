@@ -1,11 +1,8 @@
-from pathlib import Path
-
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QPixmap, QPainter, QPainterPath
 from PySide6.QtWidgets import QFrame, QLabel, QMenu, QVBoxLayout
 
-from ui.utils.image_helper import build_preview_pixmap
-from ui.widgets.add_project_card import CARD_WIDTH, CARD_HEIGHT, PREVIEW_HEIGHT
+from archivator.ui.utils.image_helper import build_preview_pixmap
+from archivator.ui.widgets.add_project_card import CARD_WIDTH, CARD_HEIGHT, PREVIEW_HEIGHT
 
 
 class ProjectCard(QFrame):

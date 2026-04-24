@@ -1,5 +1,5 @@
 import os
-from core.exceptions import InvalidProjectError
+from archivator.core.exceptions import InvalidProjectError
 
 
 def normalize_path(path: str) -> str:

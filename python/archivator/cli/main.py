@@ -7,9 +7,9 @@ root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if root not in sys.path:
     sys.path.insert(0, root)
 
-from core.registry import ProjectRegistry
-from services.archive_service import ArchiveService
-from core.exceptions import ArchivatorError
+from archivator.core.registry import ProjectRegistry
+from archivator.services.archive_service import ArchiveService
+from archivator.core.exceptions import ArchivatorError
 
 
 def main():

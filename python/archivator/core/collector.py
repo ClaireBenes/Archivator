@@ -1,4 +1,4 @@
-from core.project import Project
+from archivator.core.project import Project
 
 class Collector:
     """

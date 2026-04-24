@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from ui.utils.image_helper import build_preview_pixmap
+from archivator.ui.utils.image_helper import build_preview_pixmap
 
 
 class ProjectSettingsDialog(QDialog):

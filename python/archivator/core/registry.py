@@ -2,8 +2,8 @@ import json
 import os
 from typing import List
 
-from core.project import Project
-from core.exceptions import InvalidProjectError
+from archivator.core.project import Project
+from archivator.core.exceptions import InvalidProjectError
 
 class ProjectRegistry:
     """

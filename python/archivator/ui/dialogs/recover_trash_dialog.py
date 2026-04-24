@@ -5,7 +5,7 @@ from datetime import datetime
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import *
 
-from core.trash.trash_metadata import METADATA_SUFFIX
+from archivator.core.trash.trash_metadata import METADATA_SUFFIX
 
 class RecoverTrashDialog(QDialog):
     """
