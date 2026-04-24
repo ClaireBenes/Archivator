@@ -46,6 +46,8 @@ class MainWindow:
         self.connect_signals()
         self.refresh_projects()
 
+        self.is_selected = False
+
     def load_ui(self):
         """
         Load the main window from the Qt Designer .ui file.
@@ -278,6 +280,17 @@ class MainWindow:
             QMessageBox.warning(self.window, "Archivator Error", str(exc))
         except Exception as exc:
             QMessageBox.critical(self.window, "Unexpected Error", str(exc))
+
+    def select_project(self, project, card) -> None:
+        """
+        Select one project card.
+        """
+        if hasattr(self, "selected_card") and self.selected_card:
+            self.selected_card.set_selected(False)
+
+        self.selected_project = project
+        self.selected_card = card
+        card.set_selected(True)
 
     def show(self) -> None:
         """

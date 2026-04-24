@@ -25,6 +25,7 @@ class ProjectCard(QFrame):
         self.placeholder_path = placeholder_path
 
         self.is_hovered = False
+        self.is_selected = False
         self.menu_open = False
 
         self.setObjectName("projectCard")
@@ -127,11 +128,15 @@ class ProjectCard(QFrame):
         self.preview.setPixmap(pixmap)
         self.preview.setFixedSize(CARD_WIDTH, PREVIEW_HEIGHT)
 
+    def set_selected(self, selected: bool) -> None:
+        self.is_selected = selected
+        self.apply_current_style()
+
     def apply_current_style(self) -> None:
         """
         Apply the correct visual state for the card.
         """
-        if self.menu_open:
+        if self.menu_open or self.is_selected:
             self.setStyleSheet(self.active_style)
         elif self.is_hovered:
             self.setStyleSheet(self.hover_style)
@@ -150,12 +155,21 @@ class ProjectCard(QFrame):
 
     def mousePressEvent(self, event) -> None:
         """
-        Open project on left click.
+        Select project on single click.
+        """
+        if event.button() == Qt.LeftButton:
+            self.controller.select_project(self.project, self)
+
+        super().mousePressEvent(event)
+
+    def mouseDoubleClickEvent(self, event) -> None:
+        """
+        Open project on double click.
         """
         if event.button() == Qt.LeftButton:
             self.controller.open_project(self.project)
 
-        super().mousePressEvent(event)
+        super().mouseDoubleClickEvent(event)
 
     def contextMenuEvent(self, event) -> None:
         """
