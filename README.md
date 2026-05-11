@@ -33,8 +33,7 @@ Instead of permanently deleting files, tools can move them to a project-specific
 ## Screenshots
 
 ### Project Browser
-<img width="895" height="616" alt="image" src="https://github.com/user-attachments/assets/0744dbd5-6474-4051-90ef-9298b24bd8ae" />
-
+<img width="894" height="645" alt="archivator_new" src="https://github.com/user-attachments/assets/7180187e-9e6f-4563-be55-9d10f7fcc408" />
 
 ### Project Settings
 <img width="894" height="618" alt="image" src="https://github.com/user-attachments/assets/356cb7c2-7ba7-4475-bcdc-fe1fe6ac8d39" />
