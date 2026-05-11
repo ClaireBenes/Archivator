@@ -110,6 +110,9 @@ class MainWindow:
         if self.sort_combo is not None:
             self.sort_combo.currentIndexChanged.connect(self.refresh_projects)
 
+        if self.empty_trash_button is not None:
+            self.empty_trash_button.clicked.connect(self.empty_selected_trashes)
+
     def clear_cards(self) -> None:
         """
         Remove all cards from the project area.
@@ -323,6 +326,46 @@ class MainWindow:
         if event.button() == Qt.LeftButton:
             self.selection.clear_selection()
             self.refresh_selection_ui()
+
+    def empty_selected_trashes(self) -> None:
+        """
+        Empty trash for selected projects.
+
+        If no project is selected, empty trash for all registered projects.
+        """
+        selected_projects = self.selection.get_selected_projects()
+
+        if selected_projects:
+            projects = selected_projects
+            message = f"Empty trash for {len(projects)} selected project(s)?"
+        else:
+            projects = self.service.list_projects()
+            message = "Empty trash for ALL projects?"
+
+        if not projects:
+            QMessageBox.information(self.window, "Empty Trash", "No projects available.")
+            return
+
+        reply = QMessageBox.question(
+            self.window,
+            "Confirm Empty Trash",
+            message,
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+
+        if reply != QMessageBox.Yes:
+            return
+
+        try:
+            for project in projects:
+                self.service.empty_project_trash(project.id)
+
+        except ArchivatorError as exc:
+            QMessageBox.warning(self.window, "Archivator Error", str(exc))
+
+        except Exception as exc:
+            QMessageBox.critical(self.window, "Unexpected Error", str(exc))
 
     def show(self) -> None:
         """
