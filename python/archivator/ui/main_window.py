@@ -16,7 +16,7 @@ from archivator.ui.dialogs.project_settings_dialog import ProjectSettingsDialog
 from archivator.ui.layouts.flow_layout import FlowLayout
 from archivator.ui.widgets.add_project_card import AddProjectCard
 from archivator.ui.widgets.project_card import ProjectCard
-
+from archivator.ui.controllers.selection_controller import ProjectSelectionController
 
 
 class MainWindow:
@@ -41,12 +41,13 @@ class MainWindow:
         self.service = ArchiveService(self.registry)
 
         self.window = self.load_ui()
+
+        self.selection = ProjectSelectionController()
+
         self.bind_widgets()
         self.setup_project_area()
         self.connect_signals()
         self.refresh_projects()
-
-        self.is_selected = False
 
     def load_ui(self):
         """
@@ -124,6 +125,8 @@ class MainWindow:
         Reload and display the visible project cards.
         """
         self.clear_cards()
+        self.selection.clear_selection()
+        self.refresh_selection_ui()
 
         projects = self.service.list_projects()
         projects = self.filter_projects(projects)
@@ -134,10 +137,14 @@ class MainWindow:
 
         self.flow_layout.addWidget(AddProjectCard(self.add_project))
 
-        for project in projects:
-            self.flow_layout.addWidget(ProjectCard(project, self, str(self.placeholder_path)))
+        project_cards = []
 
-        self.clear_project_selection()
+        for project in projects:
+            card = ProjectCard(project, self, str(self.placeholder_path))
+            project_cards.append(card)
+            self.flow_layout.addWidget(card)
+
+        self.selection.set_cards(project_cards)
 
     def filter_projects(self, projects: list) -> list:
         """
@@ -286,48 +293,36 @@ class MainWindow:
         except Exception as exc:
             QMessageBox.critical(self.window, "Unexpected Error", str(exc))
 
-    def select_project(self, project, card) -> None:
-        """
-        Select one project card.
-        """
-        if hasattr(self, "selected_card") and self.selected_card:
-            self.selected_card.set_selected(False)
+    def select_project(self, project, card, modifiers=None) -> None:
+        self.selection.select_project(project, card, modifiers)
+        self.refresh_selection_ui()
 
-        self.selected_project = project
-        self.selected_card = card
+    def refresh_selection_ui(self) -> None:
+        selected_projects = self.selection.get_selected_projects()
+        count = len(selected_projects)
 
-        if self.project_path_label is not None:
-            self.project_path_label.setText(f"Selected Project Path : {project.root}")
-
-        if self.empty_trash_button is not None:
-            self.empty_trash_button.setText("Empty 1 Trash")
-
-        card.set_selected(True)
-
-    def clear_project_selection(self) -> None:
-        """
-        Clear the currently selected project card.
-        """
-        if hasattr(self, "selected_card") and self.selected_card:
-            self.selected_card.set_selected(False)
-
-        self.selected_card = None
-        self.selected_project = None
-
-        if self.project_path_label is not None:
+        if count == 0:
             self.project_path_label.setText("")
-
-        if self.empty_trash_button is not None:
             self.empty_trash_button.setText("Empty ALL Trash")
+            return
+
+        if count == 1:
+            self.project_path_label.setText(
+                f"Selected Project Path : {selected_projects[0].root}"
+            )
+        else:
+            names = [project.name for project in selected_projects]
+            self.project_path_label.setText(", ".join(names))
+
+        self.empty_trash_button.setText(f"Empty {count} Trash")
 
     def on_cards_area_clicked(self, event) -> None:
         """
         Clear selection when clicking empty space in the project area.
         """
         if event.button() == Qt.LeftButton:
-            self.clear_project_selection()
-
-        QWidget.mousePressEvent(self.cards_widget, event)
+            self.selection.clear_selection()
+            self.refresh_selection_ui()
 
     def show(self) -> None:
         """

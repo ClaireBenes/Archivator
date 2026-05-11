@@ -158,7 +158,11 @@ class ProjectCard(QFrame):
         Select project on single click.
         """
         if event.button() == Qt.LeftButton:
-            self.controller.select_project(self.project, self)
+            self.controller.select_project(
+                project=self.project,
+                card=self,
+                modifiers=event.modifiers(),
+            )
             event.accept()
             return
 
