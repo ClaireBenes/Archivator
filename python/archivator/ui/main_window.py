@@ -69,6 +69,8 @@ class MainWindow:
         self.settings_button = self.window.findChild(QPushButton, "settingsButton")
         self.sort_combo = self.window.findChild(QComboBox, "sortComboBox")
         self.stats_label = self.window.findChild(QLabel, "statsLabel")
+        self.project_path_label = self.window.findChild(QLabel, "projectPathLabel")
+        self.empty_trash_button = self.window.findChild(QPushButton, "emptyTrashButton")
 
         if self.project_container is None:
             raise RuntimeError("Missing widget 'projectContainer' in interface.ui")
@@ -92,6 +94,7 @@ class MainWindow:
         self.cards_widget = QWidget()
         self.flow_layout = FlowLayout(self.cards_widget, margin=0, hspacing=24, vspacing=24)
         self.cards_widget.setLayout(self.flow_layout)
+        self.cards_widget.mousePressEvent = self.on_cards_area_clicked
 
         self.scroll_area.setWidget(self.cards_widget)
         outer_layout.addWidget(self.scroll_area)
@@ -133,6 +136,8 @@ class MainWindow:
 
         for project in projects:
             self.flow_layout.addWidget(ProjectCard(project, self, str(self.placeholder_path)))
+
+        self.clear_project_selection()
 
     def filter_projects(self, projects: list) -> list:
         """
@@ -290,7 +295,39 @@ class MainWindow:
 
         self.selected_project = project
         self.selected_card = card
+
+        if self.project_path_label is not None:
+            self.project_path_label.setText(f"Selected Project Path : {project.root}")
+
+        if self.empty_trash_button is not None:
+            self.empty_trash_button.setText("Empty 1 Trash")
+
         card.set_selected(True)
+
+    def clear_project_selection(self) -> None:
+        """
+        Clear the currently selected project card.
+        """
+        if hasattr(self, "selected_card") and self.selected_card:
+            self.selected_card.set_selected(False)
+
+        self.selected_card = None
+        self.selected_project = None
+
+        if self.project_path_label is not None:
+            self.project_path_label.setText("")
+
+        if self.empty_trash_button is not None:
+            self.empty_trash_button.setText("Empty ALL Trash")
+
+    def on_cards_area_clicked(self, event) -> None:
+        """
+        Clear selection when clicking empty space in the project area.
+        """
+        if event.button() == Qt.LeftButton:
+            self.clear_project_selection()
+
+        QWidget.mousePressEvent(self.cards_widget, event)
 
     def show(self) -> None:
         """

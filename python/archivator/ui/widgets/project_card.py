@@ -159,6 +159,8 @@ class ProjectCard(QFrame):
         """
         if event.button() == Qt.LeftButton:
             self.controller.select_project(self.project, self)
+            event.accept()
+            return
 
         super().mousePressEvent(event)
 
