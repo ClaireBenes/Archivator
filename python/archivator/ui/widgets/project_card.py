@@ -193,6 +193,7 @@ class ProjectCard(QFrame):
 
         trash_menu = menu.addMenu("Trash")
         open_trash_action = trash_menu.addAction("Open Trash Folder")
+        trash_menu.addSeparator()
         empty_action = trash_menu.addAction("Empty Trash")
 
         settings_action = menu.addAction("Project Settings")

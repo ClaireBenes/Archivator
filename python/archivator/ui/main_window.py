@@ -234,11 +234,12 @@ class MainWindow:
 
         try:
             self.service.empty_project_trash(project.id)
-            QMessageBox.information(self.window, "Done", "Trash emptied.")
         except ArchivatorError as exc:
             QMessageBox.warning(self.window, "Archivator Error", str(exc))
         except Exception as exc:
             QMessageBox.critical(self.window, "Unexpected Error", str(exc))
+
+        self.refresh_projects()
 
     def open_project_settings(self, project) -> None:
         dialog = ProjectSettingsDialog(
@@ -366,6 +367,8 @@ class MainWindow:
 
         except Exception as exc:
             QMessageBox.critical(self.window, "Unexpected Error", str(exc))
+
+        self.refresh_projects()
 
     def show(self) -> None:
         """
