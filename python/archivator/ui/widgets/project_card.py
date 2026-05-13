@@ -2,6 +2,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFrame, QLabel, QMenu, QVBoxLayout
 
 from archivator.ui.utils.image_helper import build_preview_pixmap
+from archivator.ui.utils.folder_size_helper import get_dir_size
 from archivator.ui.widgets.add_project_card import CARD_WIDTH, CARD_HEIGHT, PREVIEW_HEIGHT
 
 
@@ -33,6 +34,10 @@ class ProjectCard(QFrame):
         self.setCursor(Qt.PointingHandCursor)
         self.setMouseTracking(True)
         self.setAttribute(Qt.WA_Hover, True)
+
+        project_size = get_dir_size(self.project.root)
+        trash_size = get_dir_size(self.project.trash_dir)
+        self.setToolTip(f"Project Size : {project_size}\nTrash Size : {trash_size}\nProject Path : {project.root}\nTrash Path : {project.trash_dir}")
 
         self.normal_style = """
         QFrame#projectCard {

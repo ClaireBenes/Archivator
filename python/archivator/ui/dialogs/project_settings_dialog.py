@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
 )
 
 from archivator.ui.utils.image_helper import build_preview_pixmap
+from archivator.ui.utils.folder_size_helper import get_dir_size
 
 
 class ProjectSettingsDialog(QDialog):
@@ -66,14 +67,6 @@ class ProjectSettingsDialog(QDialog):
 
         self.preview_label = QLabel()
         self.preview_label.setFixedSize(self.PREVIEW_WIDTH, self.PREVIEW_HEIGHT)
-        self.preview_label.setAlignment(Qt.AlignCenter)
-        self.preview_label.setStyleSheet("""
-            QLabel {
-                background-color: #2f3136;
-                border: 1px solid #4a4d55;
-                border-radius: 10px;
-            }
-        """)
 
         self.buttons = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
         self.save_button = self.buttons.button(QDialogButtonBox.Save)
@@ -117,6 +110,16 @@ class ProjectSettingsDialog(QDialog):
         left_panel.setSpacing(0)
         left_panel.addLayout(form_layout)
         left_panel.addStretch()
+
+        form_layout.addWidget(QLabel(f"Project Size "), 4, 0)
+        project_size = QLabel(f"{get_dir_size(project.root)}")
+        project_size.setStyleSheet("font-size: 15px;")
+        form_layout.addWidget(project_size, 4, 1)
+
+        form_layout.addWidget(QLabel(f"Trash Size "), 5, 0)
+        trash_size = QLabel(f"{get_dir_size(project.trash_dir)}")
+        trash_size.setStyleSheet("font-size: 15px;")
+        form_layout.addWidget(trash_size, 5, 1)
 
         thumb_buttons_row = QHBoxLayout()
         thumb_buttons_row.setSpacing(8)
