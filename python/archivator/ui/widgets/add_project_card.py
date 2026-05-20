@@ -25,7 +25,7 @@ class AddProjectCard(QFrame):
         self.setFixedSize(CARD_WIDTH, CARD_HEIGHT)
         self.setCursor(Qt.PointingHandCursor)
 
-        self.setStyleSheet("""
+        self.normal_style = """
         QFrame#addProjectCard {
             border: 1px solid #555;
             border-radius: 10px;
@@ -39,7 +39,21 @@ class AddProjectCard(QFrame):
             color: white;
             background: transparent;
         }
-        """)
+        """
+        self.setStyleSheet(self.normal_style)
+
+        self.is_dimmed = False
+        self.dimmed_style = """
+        QFrame#addProjectCard {
+            border: 1px solid #444;
+            border-radius: 10px;
+            background-color: #242424;
+        }
+        QLabel {
+            color: #777;
+            background: transparent;
+        }
+        """
 
         root_layout = QVBoxLayout(self)
         root_layout.setContentsMargins(0, 0, 0, 0)
@@ -87,3 +101,11 @@ class AddProjectCard(QFrame):
         if callable(self._on_click):
             self._on_click()
         super().mousePressEvent(event)
+
+    def set_dimmed(self, dimmed: bool) -> None:
+        self.is_dimmed = dimmed
+
+        if self.is_dimmed:
+            self.setStyleSheet(self.dimmed_style)
+        else:
+            self.setStyleSheet(self.normal_style)

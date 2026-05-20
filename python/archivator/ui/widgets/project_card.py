@@ -1,4 +1,5 @@
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QGraphicsOpacityEffect
 from PySide6.QtWidgets import QFrame, QLabel, QMenu, QVBoxLayout
 
 from archivator.ui.utils.image_helper import build_preview_pixmap
@@ -28,6 +29,7 @@ class ProjectCard(QFrame):
         self.is_hovered = False
         self.is_selected = False
         self.menu_open = False
+        self.is_dimmed = False
 
         self.setObjectName("projectCard")
         self.setFixedSize(CARD_WIDTH, CARD_HEIGHT)
@@ -75,6 +77,18 @@ class ProjectCard(QFrame):
         }
         """
 
+        self.dimmed_style = """
+        QFrame#projectCard {
+            border: 1px solid #666;
+            border-radius: 10px;
+            background-color: #303030;
+        }
+        QLabel {
+            color: #bbbbbb;
+            background: transparent;
+        }
+        """
+
         self.apply_current_style()
 
         root_layout = QVBoxLayout(self)
@@ -89,6 +103,10 @@ class ProjectCard(QFrame):
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
         """)
+        self.preview_opacity = QGraphicsOpacityEffect(self.preview)
+        self.preview_opacity.setOpacity(1.0)
+        self.preview.setGraphicsEffect(self.preview_opacity)
+
 
         self.set_preview_image()
 
@@ -141,7 +159,9 @@ class ProjectCard(QFrame):
         """
         Apply the correct visual state for the card.
         """
-        if self.menu_open or self.is_selected:
+        if self.is_dimmed:
+            self.setStyleSheet(self.dimmed_style)
+        elif self.menu_open or self.is_selected:
             self.setStyleSheet(self.active_style)
         elif self.is_hovered:
             self.setStyleSheet(self.hover_style)
@@ -213,3 +233,13 @@ class ProjectCard(QFrame):
             self.controller.open_project_settings(self.project)
         elif action == remove_action:
             self.controller.remove_project(self.project)
+
+    def set_dimmed(self, dimmed: bool) -> None:
+        self.is_dimmed = dimmed
+
+        if dimmed:
+            self.preview_opacity.setOpacity(0.35)
+        else:
+            self.preview_opacity.setOpacity(1.0)
+
+        self.apply_current_style()

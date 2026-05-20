@@ -14,7 +14,7 @@ class AddProjectDialog(QDialog):
     - Ask to create trash folder if missing
     """
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent=None, root_path: str | None = None) -> None:
         super().__init__(parent)
 
         self.setWindowTitle("Add Project")
@@ -34,6 +34,9 @@ class AddProjectDialog(QDialog):
 
         self.root_button.clicked.connect(self.browse_root)
         self.trash_button.clicked.connect(self.browse_trash)
+
+        if root_path:
+            self.set_root_path(root_path)
 
         # Layout
         layout = QVBoxLayout(self)
@@ -64,15 +67,8 @@ class AddProjectDialog(QDialog):
 
     def browse_root(self) -> None:
         folder = QFileDialog.getExistingDirectory(self, "Select Project Root")
-        if not folder:
-            return
-
-        folder = folder.replace("\\", "/")
-        self.root_edit.setText(folder)
-
-        if not self.trash_edit.text().strip():
-            trash = os.path.join(folder, "01_Trash").replace("\\", "/")
-            self.trash_edit.setText(trash)
+        if folder:
+            self.set_root_path(folder)
 
     def browse_trash(self) -> None:
         folder = QFileDialog.getExistingDirectory(self, "Select Trash Folder")
@@ -118,6 +114,16 @@ class AddProjectDialog(QDialog):
                 return
 
         super().accept()
+
+    def set_root_path(self, root_path: str) -> None:
+        """
+        Fill the project root and default trash path.
+        """
+        root_path = root_path.replace("\\", "/")
+        self.root_edit.setText(root_path)
+
+        trash = os.path.join(root_path, "01_Trash").replace("\\", "/")
+        self.trash_edit.setText(trash)
 
     def get_values(self) -> tuple[str, str]:
         root = self.root_edit.text().strip().replace("\\", "/")

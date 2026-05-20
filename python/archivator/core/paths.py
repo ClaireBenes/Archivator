@@ -10,7 +10,6 @@ THUMBNAILS_PATH = DATA_PATH / "thumbnails"
 UI_PATH = PACKAGE_ROOT / "ui" / "view" / "interface.ui"
 PLACEHOLDER_PATH = PACKAGE_ROOT / "ui" / "resources" / "placeholder.png"
 
-
 def ensure_app_dirs() -> None:
     APP_DIR.mkdir(parents=True, exist_ok=True)
     DATA_PATH.mkdir(parents=True, exist_ok=True)

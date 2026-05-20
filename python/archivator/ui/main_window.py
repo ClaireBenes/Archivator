@@ -17,6 +17,7 @@ from archivator.ui.layouts.flow_layout import FlowLayout
 from archivator.ui.widgets.add_project_card import AddProjectCard
 from archivator.ui.widgets.project_card import ProjectCard
 from archivator.ui.controllers.selection_controller import ProjectSelectionController
+from archivator.ui.utils.drop_helper import ProjectDropHelper
 
 
 class MainWindow:
@@ -41,6 +42,7 @@ class MainWindow:
         self.service = ArchiveService(self.registry)
 
         self.window = self.load_ui()
+        self.project_cards = []
 
         self.selection = ProjectSelectionController()
 
@@ -93,9 +95,24 @@ class MainWindow:
         self.scroll_area.setFrameShape(QFrame.NoFrame)
 
         self.cards_widget = QWidget()
-        self.flow_layout = FlowLayout(self.cards_widget, margin=0, hspacing=24, vspacing=24)
+        self.cards_widget.setStyleSheet("""
+        QWidget[dragActive="true"] {
+            border: 3px dashed #c38b59;
+            border-radius: 12px;
+            background-color: rgba(195, 139, 89, 35);
+            padding: 8px;
+        }
+        """)
+        self.flow_layout = FlowLayout(self.cards_widget,margin=0, hspacing=24,vspacing=24,)
         self.cards_widget.setLayout(self.flow_layout)
         self.cards_widget.mousePressEvent = self.on_cards_area_clicked
+
+        self.drop_helper = ProjectDropHelper(self)
+
+        self.cards_widget.setAcceptDrops(True)
+        self.cards_widget.dragEnterEvent = self.drop_helper.on_project_drag_enter
+        self.cards_widget.dragLeaveEvent = self.drop_helper.on_project_drag_leave
+        self.cards_widget.dropEvent = self.drop_helper.on_project_drop
 
         self.scroll_area.setWidget(self.cards_widget)
         outer_layout.addWidget(self.scroll_area)
@@ -138,16 +155,19 @@ class MainWindow:
         if self.stats_label is not None:
             self.stats_label.setText(f"{len(projects)} projects registered")
 
-        self.flow_layout.addWidget(AddProjectCard(self.add_project))
+        self.project_cards = []
 
-        project_cards = []
+        self.add_project_card = AddProjectCard(self.add_project)
+        self.project_cards.append(self.add_project_card)
+
+        self.flow_layout.addWidget(self.add_project_card)
 
         for project in projects:
             card = ProjectCard(project, self, str(self.placeholder_path))
-            project_cards.append(card)
+            self.project_cards.append(card)
             self.flow_layout.addWidget(card)
 
-        self.selection.set_cards(project_cards)
+        self.selection.set_cards(self.project_cards)
 
     def filter_projects(self, projects: list) -> list:
         """
@@ -182,8 +202,8 @@ class MainWindow:
 
         return projects
 
-    def add_project(self) -> None:
-        dialog = AddProjectDialog(self.window)
+    def add_project(self, root_path: str | None = None) -> None:
+        dialog = AddProjectDialog(self.window, root_path=root_path)
 
         if dialog.exec() != QDialog.Accepted:
             return
