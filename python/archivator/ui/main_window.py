@@ -7,7 +7,7 @@ from PySide6.QtWidgets import *
 
 from archivator.core.exceptions import ArchivatorError
 from archivator.core.registry import ProjectRegistry
-from archivator.core.paths import CONFIG_PATH, DATA_PATH, PLACEHOLDER_PATH, UI_PATH
+from archivator.core.paths import CONFIG_PATH, PLACEHOLDER_PATH, UI_PATH
 
 from archivator.services.archive_service import ArchiveService
 
@@ -33,7 +33,6 @@ class MainWindow:
     def __init__(self) -> None:
         self.ui_path = UI_PATH
         self.config_path = CONFIG_PATH
-        self.data_path = DATA_PATH
         self.placeholder_path = PLACEHOLDER_PATH
 
         self.registry = ProjectRegistry(str(self.config_path))

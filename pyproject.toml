@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "archivator"
-version = "0.1.0"
+version = "0.1.1"
 description = "Project-based archive and trash manager for VFX pipelines"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -12,9 +12,21 @@ dependencies = [
     "PySide6",
 ]
 
+license = "MIT"
+
+[project.urls]
+Homepage = "https://github.com/ClaireBenes/Archivator"
+Repository = "https://github.com/ClaireBenes/Archivator"
+
 [project.scripts]
 archivator = "archivator.ui.app:main"
 archivator-cli = "archivator.cli.main:main"
 
 [tool.setuptools.packages.find]
 where = ["python"]
+
+[tool.setuptools.package-data]
+archivator = [
+    "ui/view/*.ui",
+    "ui/resources/*",
+]
