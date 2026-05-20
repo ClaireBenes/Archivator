@@ -10,15 +10,6 @@
             "thumbnail_path": "C:\\Users\\claire.benes\\Downloads\\andreas-rocha-readershall01.jpg"
         },
         {
-            "id": "e1a6b6c0-5c9d-4bce-8b44-9bbfb8cf319a",
-            "name": "TEST_Archi",
-            "root": "C:\\Users\\claire.benes\\Documents\\PythonProject\\StoragePrismPlugin\\TEST_Archi",
-            "trash_dir": "C:\\Users\\claire.benes\\Documents\\PythonProject\\StoragePrismPlugin\\TEST_Archi\\trahs",
-            "collect": {},
-            "paths": [],
-            "thumbnail_path": null
-        },
-        {
             "id": "2f20cd6b-5ae8-4c68-a6e6-ad5a1f554b85",
             "name": "Erialc",
             "root": "C:\\Users\\claire.benes\\Documents\\PythonProject\\StoragePrismPlugin\\Erialcs",
@@ -26,6 +17,15 @@
             "collect": {},
             "paths": [],
             "thumbnail_path": "C:\\Users\\claire.benes\\Downloads\\transistor.png"
+        },
+        {
+            "id": "7ef5307a-32db-44eb-8731-aff4f1fd7f95",
+            "name": "Test",
+            "root": "C:\\Users\\claire.benes\\Documents\\PythonProject\\Test",
+            "trash_dir": "C:\\Users\\claire.benes\\Documents\\PythonProject\\Test\\01_Trash",
+            "collect": {},
+            "paths": [],
+            "thumbnail_path": null
         }
     ]
 }

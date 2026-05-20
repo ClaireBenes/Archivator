@@ -286,11 +286,7 @@ class MainWindow:
         try:
             self.service.remove_project(project.id)
             self.refresh_projects()
-            QMessageBox.information(
-                self.window,
-                "Project Removed",
-                f"Project removed:\n\n{project.name}",
-            )
+
         except ArchivatorError as exc:
             QMessageBox.warning(self.window, "Archivator Error", str(exc))
         except Exception as exc:
