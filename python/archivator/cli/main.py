@@ -1,10 +1,7 @@
 import argparse
-import sys
 import os
 
-# Ensure Python root folder is on sys.path
-from archivator.core.paths import CONFIG_PATH
-
+from archivator.core.paths import CONFIG_PATH, ensure_app_dirs
 from archivator.core.registry import ProjectRegistry
 from archivator.services.archive_service import ArchiveService
 from archivator.core.exceptions import ArchivatorError
@@ -23,6 +20,7 @@ def main():
     """
 
     # Initialize core services
+    ensure_app_dirs()
     registry = ProjectRegistry(str(CONFIG_PATH))
     registry.load()
 
