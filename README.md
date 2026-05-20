@@ -123,10 +123,6 @@ This evolution would allow Archivator to scale from a local tool to a more produ
 
 Planned improvements include:
 
-### Packaging
-- Distribute Archivator as a pip-installable package
-- Remove need for local path dependencies in integrations
-
 ### Automated Cleanup System
 - Detect unused or unreferenced files
 - Move candidates to trash safely
@@ -138,6 +134,10 @@ Planned improvements include:
 ### Pipeline Intelligence
 - Non-destructive cleanup workflows
 - Smarter file analysis to prevent breaking projects
+
+### Distribution
+- Improve PyPI metadata and documentation
+- Add release automation
 
 ---
 
