@@ -4,7 +4,7 @@ A project-based storage and trash management tool designed for VFX pipelines.
 
 Archivator provides a structured way to manage multiple projects, each with its own storage and dedicated trash system — enabling safe deletion, recovery, and future automation of cleanup workflows.
 
-[![PyPI](https://img.shields.io/pypi/v/archivator)](https://pypi.org/project/archivator/)
+[![PyPI](https://img.shields.io/pypi/v/archivator?cacheSeconds=300)](https://pypi.org/project/archivator/)
 
 ---
 
